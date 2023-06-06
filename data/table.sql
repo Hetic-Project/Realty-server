@@ -57,7 +57,7 @@ CREATE TABLE `user_problem` (
   `user_problem_user_id` integer,
   `user_problem_apartment_id` integer,
   `user_problem_description` text,
-  `user_problem_statut` varchar(255),
+  `user_problem_statut` varchar(255) DEFAULT 'In progress',
   `user_problem_created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   `user_problem_updated_at` timestamp
 );
@@ -78,18 +78,26 @@ CREATE TABLE `apartment_rental` (
   `apartment_rental_appartement_id` integer,
   `apartment_rental_start` date,
   `apartment_rental_end` date,
-  `apartment_rental_duration` integer,
+  `apartment_rental_duration` integer DEFAULT 0,
   `apartment_rental_created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   `apartment_rental_updated_at` timestamp
 );
 
+CREATE TABLE `service` (
+  `service_id` integer PRIMARY KEY,
+  `service_name` varchar(255),
+  `apartment_service_created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `apartment_service_updated_at` timestamp
+);
+
 CREATE TABLE `apartment_service` (
   `apartment_service_id` integer PRIMARY KEY,
-  `apartment_service_name` varchar(255),
+  `apartment_service_service_id` integer,
   `apartment_service_apartment_id` integer,
   `apartment_service_created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   `apartment_service_updated_at` timestamp
 );
+
 
 CREATE TABLE `user_favorite` (
   `user_favorite_id` integer PRIMARY KEY,
@@ -104,8 +112,6 @@ CREATE TABLE `user_planning` (
   `user_planning_user_id` integer,
   `user_planning_apartment_id` integer,
   `user_planning_date` date,
-  `user_planning_work_hour` integer COMMENT 'heure de travail prévue',
-  `user_planning_minimum_wage` float COMMENT 'montant du smic horaire',
   `user_planning_created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   `user_planning_updated_at` timestamp
 );
@@ -115,6 +121,7 @@ CREATE TABLE `apartment_check` (
   `apartment_check_apartment_id` integer,
   `apartment_check_user_id` integer,
   `apartment_check_task` varchar(255),
+  `apartment_check_statut` varchar(255) DEFAULT 'In progress',
   `apartment_check_created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   `apartment_check_updated_at` timestamp
 );
@@ -130,6 +137,8 @@ ALTER TABLE `user_invoice` ADD FOREIGN KEY (`user_invoice_apartment_id`) REFEREN
 ALTER TABLE `apartment_rental` ADD FOREIGN KEY (`apartment_rental_appartement_id`) REFERENCES `apartment` (`apartment_id`);
 
 ALTER TABLE `apartment_service` ADD FOREIGN KEY (`apartment_service_apartment_id`) REFERENCES `apartment` (`apartment_id`);
+
+ALTER TABLE `apartment_service` ADD FOREIGN KEY (`apartment_service_service_id`) REFERENCES `service` (service_id);
 
 ALTER TABLE `user_favorite` ADD FOREIGN KEY (`user_favorite_apartment_id`) REFERENCES `apartment` (`apartment_id`);
 

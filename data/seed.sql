@@ -241,3 +241,156 @@ INSERT INTO `user` (
     'kevin.bernard@gmail.com'
     'Logistique'
 );
+
+-- Appartements
+-- client_id : 1, 3
+
+INSERT INTO `apartment_rental` (
+    `apartment_rental_user_id`,
+    `apartment_rental_appartement_id`,
+    `apartment_rental_start`,
+    `apartment_rental_end`
+
+) VALUES 
+(1, 2, '2023/07/01', '2023/07/07'),
+(2, 1, '2023/07/10', '2023/07/17'),
+(1, 3, '2023/07/20', '2023/07/27'),
+(2, 4, '2023/08/01', '2023/08/07'),
+(1, 5, '2023/08/10', '2023/08/17'),
+(2, 6, '2023/08/20', '2023/08/27');
+
+INSERT INTO `service` (
+    `service_name`
+
+) VALUES 
+('Vue sur le canal'),
+('Front de mer'),
+('Espace de travail dédié'),
+('Baignoire'),
+('Cheminée'),
+('Vue panoramique sur la ville'),
+('Wifi'),
+('Ascenseur'),
+('Patio ou balcon : privé(e)'),
+('Caméras de surveillance extérieure et/ou dans les espaces communs');
+
+INSERT INTO `apartment_service` (
+    `apartment_service_apartment_id`,
+    `apartment_service_service_id`
+
+) VALUES 
+(1, 3),
+(1, 4),
+(1, 5),
+(1, 6),
+(1, 7),
+(2, 1),
+(2, 2),
+(2, 8),
+(2, 9),
+(2, 6),
+(3, 6),
+(3, 5),
+(3, 3),
+(3, 2),
+(3, 8),
+(4, 7),
+(4, 4),
+(4, 2),
+(4, 3),
+(4, 10),
+(5, 1),
+(5, 5),
+(5, 8),
+(5, 10),
+(5, 3),
+(6, 5),
+(6, 1),
+(6, 2),
+(6, 10),
+(6, 1),
+(7, 5),
+(7, 3),
+(7, 2),
+(7, 1),
+(7, 9),
+(8, 1),
+(8, 5),
+(8, 8),
+(8, 9),
+(8, 10),
+(9, 3),
+(9, 4),
+(9, 5),
+(9, 6),
+(9, 7),
+(10, 1),
+(10, 2),
+(10, 3),
+(10, 4),
+(10, 5),
+(10, 6),
+(10, 7),
+(10, 8),
+(10, 9),
+(10, 10);
+
+INSERT INTO `apartment_check` (
+    `apartment_check_apartment_id`,
+    `apartment_check_user_id`,
+    `apartment_check_task`
+
+) VALUES 
+(2, 1, 'Vérifier l''eau chaude'),
+(2, 1, 'Vérifier les piles dans la télécomande'),
+(2, 1, 'Vérifier l''état des toilette'),
+(2, 1, 'Vérifier le linge de maison'),
+(2, 1, 'Vérifier l''état du climatiseur'),
+(1, 2, 'Vérifier l''eau chaude'),
+(1, 2, 'Vérifier les piles dans la télécomande'),
+(1, 2, 'Vérifier l''état des toilette'),
+(1, 2, 'Vérifier le linge de maison'),
+(1, 2, 'Vérifier l''état du climatiseur'),
+(3, 1, 'Vérifier l''eau chaude'),
+(3, 1, 'Vérifier les piles dans la télécomande'),
+(3, 1, 'Vérifier l''état des toilette'),
+(3, 1, 'Vérifier le linge de maison'),
+(3, 1, 'Vérifier l''état du climatiseur'),
+(4, 2, 'Vérifier l''eau chaude'),
+(4, 2, 'Vérifier les piles dans la télécomande'),
+(4, 2, 'Vérifier l''état des toilette'),
+(4, 2, 'Vérifier le linge de maison'),
+(4, 2, 'Vérifier l''état du climatiseur'),
+(5, 1, 'Vérifier l''eau chaude'),
+(5, 1, 'Vérifier les piles dans la télécomande'),
+(5, 1, 'Vérifier l''état des toilette'),
+(5, 1, 'Vérifier le linge de maison'),
+(5, 1, 'Vérifier l''état du climatiseur'),
+(6, 2, 'Vérifier l''eau chaude'),
+(6, 2, 'Vérifier les piles dans la télécomande'),
+(6, 2, 'Vérifier l''état des toilette'),
+(6, 2, 'Vérifier le linge de maison'),
+(6, 2, 'Vérifier l''état du climatiseur'),
+
+-- USER
+
+INSERT INTO `user_problem` (
+    `user_problem_user_id`,
+    `user_problem_apartment_id`,
+    `user_problem_description`
+
+) VALUES ()
+
+INSERT INTO `user_invoice` (
+`user_invoice_user_id`,
+`user_invoice_apartment_id`,
+`user_invoice_date`,
+`user_invoice_amount`
+
+) VALUES ()
+
+INSERT INTO `user_planning` (
+`user_planning_user_id`,
+`user_planning_apartment_id`,
+`user_planning_date`
+) VALUES ()
