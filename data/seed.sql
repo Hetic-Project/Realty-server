@@ -11,7 +11,7 @@ INSERT INTO `apartment`(
     `apartment_price`,
     `apartment_size`,
     `apartment_bedroom`,
-    `apartment_capacity`,
+    `apartment_capacity`
 ) VALUES 
 (
     'Location',
@@ -165,8 +165,8 @@ INSERT INTO `user` (
     '06-00-00-00-00',
     '5 rue du mancho',
     '42000',
-    'saint étienne'
-    'kevin.bernard@gmail.com'
+    'saint étienne',
+    'kevin.bernard@gmail.com',
     'Client'
 ),
 (
@@ -177,8 +177,8 @@ INSERT INTO `user` (
     '06-00-00-00-00',
     '5 rue du mancho',
     '42000',
-    'saint étienne'
-    'vandal.william@gmail.com'
+    'saint étienne',
+    'vandal.william@gmail.com',
     'Logistique'
 ),
 (
@@ -189,8 +189,8 @@ INSERT INTO `user` (
     '06-00-00-00-00',
     '5 rue du mancho',
     '42000',
-    'saint étienne'
-    'mohamed.yaich@gmail.com'
+    'saint étienne',
+    'mohamed.yaich@gmail.com',
     'Client'
 ),
 (
@@ -201,8 +201,8 @@ INSERT INTO `user` (
     '06-00-00-00-00',
     '5 rue du mancho',
     '42000',
-    'saint étienne'
-    'kevin.bernard@gmail.com'
+    'saint étienne',
+    'kevin.bernard@gmail.com',
     'Admin'
 ),
 (
@@ -213,8 +213,8 @@ INSERT INTO `user` (
     '06-00-00-00-00',
     '5 rue du mancho',
     '42000',
-    'saint étienne'
-    'kevin.bernard@gmail.com'
+    'saint étienne',
+    'kevin.bernard@gmail.com',
     'Menage'
 ),
 (
@@ -225,8 +225,8 @@ INSERT INTO `user` (
     '06-00-00-00-00',
     '5 rue du mancho',
     '42000',
-    'saint étienne'
-    'kevin.bernard@gmail.com'
+    'saint étienne',
+    'kevin.bernard@gmail.com',
     'Menage'
 ),
 (
@@ -237,27 +237,27 @@ INSERT INTO `user` (
     '06-00-00-00-00',
     '5 rue du mancho',
     '42000',
-    'saint étienne'
-    'kevin.bernard@gmail.com'
+    'saint étienne',
+    'kevin.bernard@gmail.com',
     'Logistique'
 );
 
 -- Appartements
--- client_id : 1, 3
+
 
 INSERT INTO `apartment_rental` (
     `apartment_rental_user_id`,
-    `apartment_rental_appartement_id`,
+    `apartment_rental_apartement_id`,
     `apartment_rental_start`,
     `apartment_rental_end`
 
 ) VALUES 
 (1, 2, '2023/07/01', '2023/07/07'),
-(2, 1, '2023/07/10', '2023/07/17'),
+(3, 1, '2023/07/10', '2023/07/17'),
 (1, 3, '2023/07/20', '2023/07/27'),
-(2, 4, '2023/08/01', '2023/08/07'),
+(3, 4, '2023/08/01', '2023/08/07'),
 (1, 5, '2023/08/10', '2023/08/17'),
-(2, 6, '2023/08/20', '2023/08/27');
+(3, 6, '2023/08/20', '2023/08/27');
 
 INSERT INTO `service` (
     `service_name`
@@ -335,62 +335,111 @@ INSERT INTO `apartment_service` (
 (10, 9),
 (10, 10);
 
+INSERT INTO `apartment_employee`(
+`apartment_employee_apartment_id`,
+`apartment_employee_user_id`
+) VALUES 
+(1, 5),
+(2, 5),
+(3, 5),
+(4, 5),
+(5, 5),
+(6, 6),
+(7, 6),
+(8, 6),
+(9, 6),
+(10, 6);
+
 INSERT INTO `apartment_check` (
     `apartment_check_apartment_id`,
-    `apartment_check_user_id`,
     `apartment_check_task`
 
 ) VALUES 
-(2, 1, 'Vérifier l''eau chaude'),
-(2, 1, 'Vérifier les piles dans la télécomande'),
-(2, 1, 'Vérifier l''état des toilette'),
-(2, 1, 'Vérifier le linge de maison'),
-(2, 1, 'Vérifier l''état du climatiseur'),
-(1, 2, 'Vérifier l''eau chaude'),
-(1, 2, 'Vérifier les piles dans la télécomande'),
-(1, 2, 'Vérifier l''état des toilette'),
-(1, 2, 'Vérifier le linge de maison'),
-(1, 2, 'Vérifier l''état du climatiseur'),
-(3, 1, 'Vérifier l''eau chaude'),
-(3, 1, 'Vérifier les piles dans la télécomande'),
-(3, 1, 'Vérifier l''état des toilette'),
-(3, 1, 'Vérifier le linge de maison'),
-(3, 1, 'Vérifier l''état du climatiseur'),
-(4, 2, 'Vérifier l''eau chaude'),
-(4, 2, 'Vérifier les piles dans la télécomande'),
-(4, 2, 'Vérifier l''état des toilette'),
-(4, 2, 'Vérifier le linge de maison'),
-(4, 2, 'Vérifier l''état du climatiseur'),
-(5, 1, 'Vérifier l''eau chaude'),
-(5, 1, 'Vérifier les piles dans la télécomande'),
-(5, 1, 'Vérifier l''état des toilette'),
-(5, 1, 'Vérifier le linge de maison'),
-(5, 1, 'Vérifier l''état du climatiseur'),
-(6, 2, 'Vérifier l''eau chaude'),
-(6, 2, 'Vérifier les piles dans la télécomande'),
-(6, 2, 'Vérifier l''état des toilette'),
-(6, 2, 'Vérifier le linge de maison'),
-(6, 2, 'Vérifier l''état du climatiseur'),
+(2, 'Vérifier l''eau chaude'),
+(2, 'Vérifier les piles dans la télécomande'),
+(2, 'Vérifier l''état des toilette'),
+(2, 'Vérifier le linge de maison'),
+(2, 'Vérifier l''état du climatiseur'),
+(1, 'Vérifier l''eau chaude'),
+(1, 'Vérifier les piles dans la télécomande'),
+(1, 'Vérifier l''état des toilette'),
+(1, 'Vérifier le linge de maison'),
+(1, 'Vérifier l''état du climatiseur'),
+(3, 'Vérifier l''eau chaude'),
+(3, 'Vérifier les piles dans la télécomande'),
+(3, 'Vérifier l''état des toilette'),
+(3, 'Vérifier le linge de maison'),
+(3, 'Vérifier l''état du climatiseur'),
+(4, 'Vérifier l''eau chaude'),
+(4, 'Vérifier les piles dans la télécomande'),
+(4, 'Vérifier l''état des toilette'),
+(4, 'Vérifier le linge de maison'),
+(4, 'Vérifier l''état du climatiseur'),
+(5, 'Vérifier l''eau chaude'),
+(5, 'Vérifier les piles dans la télécomande'),
+(5, 'Vérifier l''état des toilette'),
+(5, 'Vérifier le linge de maison'),
+(5, 'Vérifier l''état du climatiseur'),
+(6, 'Vérifier l''eau chaude'),
+(6, 'Vérifier les piles dans la télécomande'),
+(6, 'Vérifier l''état des toilette'),
+(6, 'Vérifier le linge de maison'),
+(6, 'Vérifier l''état du climatiseur');
 
 -- USER
+-- 1, 3 = client
+-- 5, 6 = ménage
 
 INSERT INTO `user_problem` (
     `user_problem_user_id`,
     `user_problem_apartment_id`,
-    `user_problem_description`
+    `user_problem_description`,
+    `user_problem_date`
 
-) VALUES ()
+) VALUES 
+(1, 2, 'les rideaux sont déchirer', '2023/07/02'),
+(3, 1, 'il n''y a plus d''eau chaude', '2023/07/11');
 
 INSERT INTO `user_invoice` (
-`user_invoice_user_id`,
-`user_invoice_apartment_id`,
-`user_invoice_date`,
-`user_invoice_amount`
+    `user_invoice_user_id`,
+    `user_invoice_apartment_id`,
+    `user_invoice_date`,
+    `user_invoice_amount`
 
-) VALUES ()
+) VALUES 
+(1, 2, '2023/06/06', 5400),
+(2, 1, '2023/06/05', 6000),
+(1, 3, '2023/06/02', 3000),
+(2, 4, '2023/06/01', 9000),
+(1, 5, '2023/06/03', 7200),
+(2, 6, '2023/06/04', 12000);
 
 INSERT INTO `user_planning` (
 `user_planning_user_id`,
 `user_planning_apartment_id`,
 `user_planning_date`
-) VALUES ()
+) VALUES 
+(5, 2, '2023/06/29'),
+(5, 1, '2023/07/08'),
+(5, 3, '2023/07/18'),
+(5, 4, '2023/07/28'),
+(5, 5, '2023/08/18'),
+(6, 6, '2023/08/28');
+
+INSERT INTO `user_review` (
+`user_review_user_id`,
+`user_review_apartment_id`,
+`user_review_comment`
+) VALUES 
+(1, 2, 'Génial j''ai aimé mon séjour du debut a la fin'),
+(1, 3, 'service impécable');
+
+
+INSERT INTO `employee_report` (
+`employee_report_user_id`,
+`employee_report_apartment_id`,
+`employee_report_logistics_user_id`,
+`employee_report_message`,
+`employee_report_date`
+) VALUES 
+(5, 1, 7, 'il n''y a plus d''eau chaude', '2023/07/08');
