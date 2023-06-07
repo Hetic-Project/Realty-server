@@ -15,10 +15,6 @@ class User {
         
     }
 
-    function getAllPlanningForOneApartment(){
-        
-    }
-
     function getAllUserWhereStatutIsMenage(){
         
     }
