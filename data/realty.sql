@@ -6,12 +6,10 @@
 -- FLUSH PRIVILEGES;
 
 -- Linux :
--- mysql -u realty  -p realty  < ./data/table.sql
--- mysql -u realty  -p realty  < ./data/seed.sql
+-- mysql -u realty  -p realty  < ./data/realty.sql
 
 -- Windows :
--- type .\data\table.sql | mysql -u realty -p realty   
--- type .\data\seed.sql | mysql -u realty -p realty
+-- type .\data\realty.sql | mysql -u realty -p realty   
 
 BEGIN;
 
