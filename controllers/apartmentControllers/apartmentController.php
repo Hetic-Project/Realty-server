@@ -21,6 +21,13 @@ class Apartment {
 
     function getAllApartment(){
         
+        // 1. J'utilise l'objet Database
+        // 2. J'appelle la fonction getconnection de Database
+
+        // 3. je prépare ma requète
+        // 4. J'exécute ma requête
+
+        // 5. je renvoie les données au front en json
     }
 
     function deleteApartment(){
