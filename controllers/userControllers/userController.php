@@ -128,39 +128,100 @@ class User {
         // 1. J'utilise l'objet Database
         $db = new Database();
 
-        // 2. j'utilise la fonction getconnection de l'objet Database
-        $connexion = $db->getconnection();
-
         // 2. J'appelle la fonction getconnection de Database
         $connexion = $db->getconnection();
 
         // 3. je prépare ma requète attention je veut récupérer les users dont le statut 
         $request = $connexion->prepare("
-        SELECT user_id WHERE user_statut = Menage
+        SELECT *
+        FROM user
+        WHERE user_statut = 'Menage'
+    ");
 
-    
-        )");
-        
-
-        
-
-        // est = a menage
-        
         // 4. J'exécute ma requête
+        $request->execute();
 
         // 5. je renvoie les données au front en json
+        $userInfos = $request->fetchAll(PDO::FETCH_ASSOC);
+        header('Content-Type: application/json');
+        echo json_encode($userInfos);
+
     }
 
-    function getOneUser(){
-        
+    function getOneUser($user_id){
+
+        $db = new Database();
+
+        // 2. J'appelle la fonction getconnection de Database
+        $connexion = $db->getconnection();
+
+        // 3. je prépare ma requète attention je veut récupérer un user
+        $request = $connexion->prepare(" 
+        SELECT firstname
+        FROM user
+        WHERE user_id = :user_id
+    ");
+        // 4. J'exécute ma requête
+        $request->execute([ ":user_id" => $user_id]);
+
+        $userInfos = $request->fetch(PDO::FETCH_ASSOC);
+        header('Content-Type: application/json');
+        echo json_encode($userInfos);
+
     }
 
-    function searchUser(){
-        
+    function searchUser($params){
+        $db = new Database();
+
+        // 2. J'appelle la fonction getconnection de Database
+        $connexion = $db->getconnection();
+
+        // 3. je prépare ma requète attention je veut rechercher les users
+        $request = $connexion->prepare("
+        SELECT user_firstname, user_lastname, user_id
+        FROM user
+        WHERE users_firstname LIKE :params 
+        OR users_lastname LIKE :params
+    ");
+
+        // 4. J'exécute ma requête
+        $request->execute([":params" => $params]);
+
+        $userInfos = $request->fetchAll(PDO::FETCH_ASSOC);
+        header('Content-Type: application/json');
+        echo json_encode($userInfos);
     }
 
     function updateAccountForOneUser(){
-        
+        $db = new Database();
+
+        // 2. J'appelle la fonction getconnection de Database
+        $connexion = $db->getconnection();
+
+        // 3. je prépare ma requète attention je veut rechercher les users
+        $request = $connexion->prepare("
+        INSERT INTO user (
+            user_firstname,
+            user_lastname,
+            user_mail,
+            user_password,
+            user_birth
+        ) VALUES (
+            :firstname,
+            :lastname,
+            :mail,
+            :password,
+            :birthday
+        )");
+    ");
+
+        // 4. J'exécute ma requête
+        $request->execute(
+            [
+                :user_id => $user_id,
+                :user_statut => $user_statut
+            ]
+        );
     }
 
     function getAccountForOneUser(){
