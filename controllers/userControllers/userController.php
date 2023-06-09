@@ -58,7 +58,7 @@ class User {
 
         // 8. J'envoie une réponse
         $message = "le compte a bien été créé";
-        header('Location: http://localhost:3000/Page/login.php?message=' . urlencode($message));
+        header('Location: http://localhost:3000/pages/userspace/login.php?message=' . urlencode($message));
         exit;
 
     }
@@ -97,12 +97,12 @@ class User {
                     $_SESSION['statut'] = $userInfos['user_statut'];
                     header('HTTP/1.1 200 OK');
                     $message = "Connexion réussie";
-                    header('Location: http://localhost:3000/Page/publications.php?message=' . urlencode($message));
+                    header('Location: http://localhost:3000?message=' . urlencode($message));
                     exit;
 
                 }else {
                     // si le compte est désactiver 
-                    header('Location: http://localhost:3000/Page/login.php?id=' . urlencode($userInfos['id']));
+                    header('Location: http://localhost:3000/pages/userspace/login.php?id=' . urlencode($userInfos['id']));
                     exit;
                 }
                 
@@ -110,13 +110,13 @@ class User {
                 // si le mail ou le mot de passe est incorect
                 header("HTTP/1.1 402");
                 $message = "le nom d'utilisateur ou le mot de passe est incorrect";
-                header('Location: http://localhost:3000/Page/login.php?message=' . urlencode($message));
+                header('Location: http://localhost:3000/pages/userspace/login.php?message=' . urlencode($message));
                 exit;
             }
         } else {
             // si il y a un champ qui n'est pas rempli
             $message = "Tout les champs sont requis";
-            header('Location: http://localhost:3000/Page/login.php?message=' . urlencode($message));
+            header('Location: http://localhost:3000/pages/userspace/login.php?message=' . urlencode($message));
             exit;
         }
         
