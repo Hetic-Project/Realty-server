@@ -8,31 +8,38 @@ require_once './database/client.php';
 class User_planning {
     
     function getOnePlanningForOneUser(){
-
+        // get
+        // afficher le planning d'un utilisateur
     }
 
     function getAllPlanningForOneUser(){
-        
+        // Get
+        // Afficher tous les planning d'un utilisateur
     }
 
     function getAllPlanningForOneApartment(){
-        
+        // get
+        // Afficher tous les plannings d'un appartement
     }
 
     function getOnePlanningForOneApartement(){
-        
+        //get
+        // afficher un planning d'un appartement
     }
 
     function addPlanning(){
-        
+        // post
+        // ajouter un planning
     }
 
     function updateOnePlanning(){
-        
+        //post
+        // modifier un planning
     }
 
     function deletePlanning(){
-        
+        // post
+        // suprimer un planning
     }
     
 }

@@ -132,9 +132,20 @@ class User {
         $connexion = $db->getconnection();
 
         // 2. J'appelle la fonction getconnection de Database
+        $connexion = $db->getconnection();
 
         // 3. je prépare ma requète attention je veut récupérer les users dont le statut 
+        $request = $connexion->prepare("
+        SELECT user_id WHERE user_statut = Menage
+
+    
+        )");
+        
+
+        
+
         // est = a menage
+        
         // 4. J'exécute ma requête
 
         // 5. je renvoie les données au front en json
