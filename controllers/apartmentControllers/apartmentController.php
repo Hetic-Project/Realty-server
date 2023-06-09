@@ -31,6 +31,15 @@ class Apartment {
     }
 
     function updateApartment(){
+        $db = new Database();
+
+        $connexion = $db->getconnection();
+
+        $request = $conexion->prepare("
+            SELECT *
+            FROM apartment
+            WHERE apartment_id = :apartment_id
+        ");
         
     }
 
