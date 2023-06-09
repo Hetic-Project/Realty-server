@@ -126,6 +126,11 @@ class User {
 
     function getAllUserWhereStatutIsMenage(){
         // 1. J'utilise l'objet Database
+        $db = new Database();
+
+        // 2. j'utilise la fonction getconnection de l'objet Database
+        $connexion = $db->getconnection();
+
         // 2. J'appelle la fonction getconnection de Database
 
         // 3. je prépare ma requète attention je veut récupérer les users dont le statut 
