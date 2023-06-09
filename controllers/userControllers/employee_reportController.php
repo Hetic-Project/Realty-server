@@ -144,7 +144,7 @@ class Employee_report {
         
     }
 
-    function deleteMessageReport($message_id){
+    function deleteMessageReport($message_id){ // CONTROLLER NON FINI !
         // GET
         $db = new Database();
         
