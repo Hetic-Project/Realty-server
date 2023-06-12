@@ -91,36 +91,32 @@ class Apartment_rental {
         echo json_encode($apartmentInfos);
     }
 
-    function getAllApartmentRental(){
+    function getAllApartmentRental($apartment_id){
         
         $db = new Database();
 
         $connexion = $db->getconnection();
         
         $request = $connexion->prepare("
-            SELECT 
-            apartment_adress, 
-            apartment_zip_code, 
-            apartment_city,
+            SELECT
+            apartment_id,  
             apartment_rental_start,
-            apartment_rental_end,
-            user_firstname,
-            user_lastname
+            apartment_rental_end
             FROM apartment_rental
-            JOIN apartment ON apartment_rental_apartment_id = apartment_id
-            JOIN user ON apartment_rental_user_id = user_id
-            WHERE apartment_rental_start <= CURDATE()
+            JOIN apartment ON apartment_rental.apartment_rental_apartement_id = apartment_id
+            WHERE apartment.apartment_id = :apartment_id
+            AND apartment_rental_start >= CURDATE()
             ORDER BY apartment_rental_start DESC;
         ");
 
-        $request->execute();
+        $request->execute([':apartment_id' => $apartment_id]);
 
-        $apartmentInfos = $request->fetchAll(PDO::FETCH_ASSOC);
+        $apartmentsRentals = $request->fetchAll(PDO::FETCH_ASSOC);
 
         $connexion = null;
 
         header('Content-Type: application/json');
-        echo json_encode($apartmentInfos);
+        echo json_encode($apartmentsRentals);
 
         
     }
