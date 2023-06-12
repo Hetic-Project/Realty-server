@@ -233,10 +233,28 @@ class Apartment {
         $connexion = $db->getconnection();
 
         // récupérer les infos d'un appartement 
-        $request = $conexion->prepare("
-            SELECT *
+        $request = $connexion->prepare("
+            SELECT apartment.*,
+            JSON_ARRAYAGG(JSON_OBJECT('service_name', service.service_name)) AS services,
+            (
+            SELECT JSON_ARRAYAGG(
+                JSON_OBJECT(
+                    'rental_id', apartment_rental_id,
+                    'rental_start', apartment_rental.apartment_rental_start,
+                    'rental_end', apartment_rental.apartment_rental_end
+                )
+            )
+            FROM apartment_rental
+            WHERE apartment_rental.apartment_rental_id = :apartment_id
+            AND (apartment_rental.apartment_rental_start >= CURDATE() 
+            OR CURDATE() BETWEEN apartment_rental.apartment_rental_start AND apartment_rental.apartment_rental_end)
+            ) AS rental_records
             FROM apartment
-            WHERE apartment_id = :apartment_id
+            LEFT JOIN apartment_service ON apartment.apartment_id = apartment_service.apartment_service_apartment_id
+            LEFT JOIN service ON apartment_service.apartment_service_service_id = service.service_id
+            WHERE apartment.apartment_id = :apartment_id
+            GROUP BY apartment.apartment_id
+    
         ");
         
         $request->execute([':apartment_id' => $apartment_id]);
