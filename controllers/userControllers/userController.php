@@ -58,7 +58,7 @@ class User {
 
         // 8. J'envoie une réponse
         $message = "le compte a bien été créé";
-        header('Location: http://localhost:3000/pages/userspace/login.php?message=' . urlencode($message));
+        header('Location: http://localhost:3000/Page/login.php?message=' . urlencode($message));
         exit;
 
     }
@@ -97,12 +97,12 @@ class User {
                     $_SESSION['statut'] = $userInfos['user_statut'];
                     header('HTTP/1.1 200 OK');
                     $message = "Connexion réussie";
-                    header('Location: http://localhost:3000?message=' . urlencode($message));
+                    header('Location: http://localhost:3000/Page/publications.php?message=' . urlencode($message));
                     exit;
 
                 }else {
                     // si le compte est désactiver 
-                    header('Location: http://localhost:3000/pages/userspace/login.php?id=' . urlencode($userInfos['id']));
+                    header('Location: http://localhost:3000/Page/login.php?id=' . urlencode($userInfos['id']));
                     exit;
                 }
                 
@@ -110,13 +110,13 @@ class User {
                 // si le mail ou le mot de passe est incorect
                 header("HTTP/1.1 402");
                 $message = "le nom d'utilisateur ou le mot de passe est incorrect";
-                header('Location: http://localhost:3000/pages/userspace/login.php?message=' . urlencode($message));
+                header('Location: http://localhost:3000/Page/login.php?message=' . urlencode($message));
                 exit;
             }
         } else {
             // si il y a un champ qui n'est pas rempli
             $message = "Tout les champs sont requis";
-            header('Location: http://localhost:3000/pages/userspace/login.php?message=' . urlencode($message));
+            header('Location: http://localhost:3000/Page/login.php?message=' . urlencode($message));
             exit;
         }
         
@@ -133,10 +133,10 @@ class User {
 
         // 3. je prépare ma requète attention je veut récupérer les users dont le statut 
         $request = $connexion->prepare("
-        SELECT *
-        FROM user
-        WHERE user_statut = 'Menage'
-    ");
+            SELECT *
+            FROM user
+            WHERE user_statut = 'Menage'
+        ");
 
         // 4. J'exécute ma requête
         $request->execute();
@@ -157,10 +157,10 @@ class User {
 
         // 3. je prépare ma requète attention je veut récupérer un user
         $request = $connexion->prepare(" 
-        SELECT firstname
-        FROM user
-        WHERE user_id = :user_id
-    ");
+            SELECT *
+            FROM user
+            WHERE user_id = :user_id
+        ");
         // 4. J'exécute ma requête
         $request->execute([ ":user_id" => $user_id]);
 
@@ -192,56 +192,362 @@ class User {
         echo json_encode($userInfos);
     }
 
-    function updateAccountForOneUser(){
+    function updateAccountForOneUser($user_id, $user_statut, $old_password, $new_password, $new_birth) {
         $db = new Database();
-
-        // 2. J'appelle la fonction getconnection de Database
         $connexion = $db->getconnection();
-
-        // 3. je prépare ma requète attention je veut rechercher les users
+    
+        // Vérification de l'ancien mot de passe
         $request = $connexion->prepare("
-        INSERT INTO user (
-            user_firstname,
-            user_lastname,
-            user_mail,
-            user_password,
-            user_birth
-        ) VALUES (
-            :firstname,
-            :lastname,
-            :mail,
-            :password,
-            :birthday
-        )");
-    ");
+            SELECT user_password
+            FROM user
+            WHERE user_id = :user_id
+        ");
+        $request->execute([":user_id" => $user_id]);
+        $userInfos = $request->fetch(PDO::FETCH_ASSOC);
+    
+        if ($userInfos && password_verify($old_password, $userInfos['user_password'])) {
+            // Mise à jour du mot de passe
+            if (!empty($new_password)) {
+                $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+                $request = $connexion->prepare("
+                    UPDATE user
+                    SET user_password = :password
+                    WHERE user_id = :user_id
+                ");
+                $request->execute([
+                    ":password" => $hashed_password,
+                    ":user_id" => $user_id
+                ]);
+            }
+    
+            // Mise à jour de user_birth (maximum 2 fois par an)
+            if (!empty($new_birth)) {
+                $request = $connexion->prepare("
+                    SELECT COUNT(*) as birth_updates
+                    FROM user
+                    WHERE user_id = :user_id
+                    AND YEAR(user_birth) = YEAR(CURRENT_DATE())
+                ");
+                $request->execute([":user_id" => $user_id]);
+                $result = $request->fetch(PDO::FETCH_ASSOC);
+    
+                if ($result['birth_updates'] < 2) {
+                    $request = $connexion->prepare("
+                        UPDATE user
+                        SET user_birth = :new_birth
+                        WHERE user_id = :user_id
+                    ");
+                    $request->execute([
+                        ":new_birth" => $new_birth,
+                        ":user_id" => $user_id
+                    ]);
+                }
+            }
+    
+            // Mise à jour du statut de l'utilisateur
+            $request = $connexion->prepare("
+                UPDATE user
+                SET user_statut = :user_statut
+                WHERE user_id = :user_id
+            ");
+            $request->execute([
+                ":user_statut" => $user_statut,
+                ":user_id" => $user_id
+            ]);
+    
+            // Fermeture de la connexion
+            $connexion = null;
 
-        // 4. J'exécute ma requête
-        $request->execute(
-            [
-                :user_id => $user_id,
-                :user_statut => $user_statut
-            ]
-        );
-    }
-
-    function getAccountForOneUser(){
-        
-    }
-
-    function desactiveAccountForOneUser (){
-        
-    }
-
-    function reactiveAccountForOneUser (){
-        
-    }
-
-    function updateStatutForOneUser (){
-        
-    }
-
-    function deleteAccountForOneUser (){
-        
+            #$userInfos = $request->fetch(PDO::FETCH_ASSOC);
+            header('Content-Type: application/json');
+            echo json_encode($userInfos, $result);
+        }
     }
     
-}
+
+    function getAccountForOneUser($user_id){
+
+        // j'appelle l'objet base de donnée
+        $db = new Database();
+
+        // je me connecte à la BDD avec la fonction getconnexion de l'objet Database
+        $connexion = $db->getconnection();
+
+        // je prépare la requête
+        $sql = $connexion->prepare("
+        SELECT * FROM user
+        WHERE user.user_id = :user_id
+        UNION ALL
+        SELECT * FROM apartment_rental
+        WHERE user.user_id = :user_id
+        UNION ALL
+        SELECT * FROM user_invoice
+        WHERE user.user_id = :user_id;
+
+        ");
+        // j'exécute la requête
+        $sql->execute([':user_id' => $user_id]);
+        // je récupère tous les résultats dans users
+        $user = $sql->fetch(PDO::FETCH_ASSOC);
+        // je ferme la connexion
+        $connexion = null;
+
+        // je renvoie au front les données au format json
+        header('Content-Type: application/json');
+        echo json_encode($user);
+    }
+
+
+        
+    }
+
+
+    function desactiveAccountForOneUser($user_id) {
+        $db = new Database();
+        $connexion = $db->getconnection();
+    
+        // Vérification des conditions supplémentaires avant de désactiver le compte
+    
+        // 1. Vérifier si l'utilisateur est déjà désactivé
+        $checkStatusQuery = $connexion->prepare("
+            SELECT user_active
+            FROM user
+            WHERE user_id = :user_id
+        ");
+        $checkStatusQuery->execute([
+            ":user_id" => $user_id
+        ]);
+        $userStatus = $checkStatusQuery->fetchColumn();
+    
+        if ($userStatus == 0) {
+            // Si le compte est déjà désactivé, vous pouvez effectuer une action ou renvoyer un message d'erreur approprié
+            $message = "Le compte est déjà désactivé.";
+            // Vous pouvez rediriger l'utilisateur vers une page spécifique, afficher un message d'erreur, etc.
+            $response = [
+                "success" => false,
+                "message" => $message
+            ];
+            header('Content-Type: application/json');
+            echo json_encode($response);
+            return;
+        }
+
+        $request = $connexion->prepare("
+            UPDATE user 
+            SET user_active = 0
+            WHERE user_id = :user_id
+        ");
+    
+        $request->execute([
+            ":user_id" => $user_id
+        ]);
+    
+        // Récupération des informations de l'utilisateur après la mise à jour
+        $getUserQuery = $connexion->prepare("
+            SELECT *
+            FROM user
+            WHERE user_id = :user_id
+        ");
+        $getUserQuery->execute([
+            ":user_id" => $user_id
+        ]);
+        $userInfos = $getUserQuery->fetch(PDO::FETCH_ASSOC);
+    
+        // Fermeture de la connexion
+        $connexion = null;
+    
+        // Réponse JSON indiquant le succès de l'opération et les informations de l'utilisateur
+        $response = [
+            "success" => true,
+            "message" => "Le compte a été désactivé avec succès.",
+            "user" => $userInfos
+        ];
+        header('Content-Type: application/json');
+        echo json_encode($response);
+    }
+    
+
+
+    function reactiveAccountForOneUser($user_id, $user_statut) {
+        $db = new Database();
+        $connexion = $db->getconnection();
+    
+        // Vérification des conditions supplémentaires avant de réactiver le compte
+    
+        // 1. Vérifier si l'utilisateur est déjà actif
+        $checkStatusQuery = $connexion->prepare("
+            SELECT user_active
+            FROM user
+            WHERE user_id = :user_id
+        ");
+        $checkStatusQuery->execute([
+            ":user_id" => $user_id
+        ]);
+        $userStatus = $checkStatusQuery->fetchColumn();
+    
+        if ($userStatus == 1) {
+            // Si le compte est déjà actif, vous pouvez effectuer une action ou renvoyer un message d'erreur approprié
+            $message = "Le compte est déjà actif.";
+            // Vous pouvez rediriger l'utilisateur vers une page spécifique, afficher un message d'erreur, etc.
+            $response = [
+                "success" => false,
+                "message" => $message
+            ];
+            header('Content-Type: application/json');
+            echo json_encode($response);
+            return;
+        }
+    
+        $request = $connexion->prepare("
+            UPDATE user 
+            SET user_active = 1, user_statut = :user_statut
+            WHERE user_id = :user_id
+        ");
+    
+        $request->execute([
+            ":user_id" => $user_id,
+            ":user_statut" => $user_statut
+        ]);
+    
+        // Récupération des informations de l'utilisateur après la mise à jour
+        $getUserQuery = $connexion->prepare("
+            SELECT *
+            FROM user
+            WHERE user_id = :user_id
+        ");
+        $getUserQuery->execute([
+            ":user_id" => $user_id
+        ]);
+        $userInfos = $getUserQuery->fetch(PDO::FETCH_ASSOC);
+    
+        // Fermeture de la connexion
+        $connexion = null;
+    
+        // Réponse JSON indiquant le succès de l'opération et les informations de l'utilisateur
+        $response = [
+            "success" => true,
+            "message" => "Le compte a été réactivé avec succès.",
+            "user" => $userInfos
+        ];
+        header('Content-Type: application/json');
+        echo json_encode($response);
+    }
+    
+
+    function updateStatutForOneUser($user_id, $new_statut) {
+        $db = new Database();
+        $connexion = $db->getconnection();
+    
+        // Vérification des conditions supplémentaires avant de mettre à jour le statut de l'utilisateur
+    
+        // 1. Vérifier si l'utilisateur existe
+        $checkUserQuery = $connexion->prepare("
+            SELECT COUNT(*) as count
+            FROM user
+            WHERE user_id = :user_id
+        ");
+        $checkUserQuery->execute([
+            ":user_id" => $user_id
+        ]);
+        $userExists = $checkUserQuery->fetchColumn();
+    
+        if (!$userExists) {
+            // Si l'utilisateur n'existe pas, vous pouvez effectuer une action ou renvoyer un message d'erreur approprié
+            $message = "L'utilisateur spécifié n'existe pas.";
+            // Vous pouvez rediriger l'utilisateur vers une page spécifique, afficher un message d'erreur, etc.
+            $response = [
+                "success" => false,
+                "message" => $message
+            ];
+            header('Content-Type: application/json');
+            echo json_encode($response);
+            return;
+        }
+
+        $request = $connexion->prepare("
+            UPDATE user 
+            SET user_statut = :new_statut
+            WHERE user_id = :user_id
+        ");
+    
+        $request->execute([
+            ":user_id" => $user_id,
+            ":new_statut" => $new_statut
+        ]);
+    
+        // Récupération des informations de l'utilisateur après la mise à jour
+        $getUserQuery = $connexion->prepare("
+            SELECT *
+            FROM user
+            WHERE user_id = :user_id
+        ");
+        $getUserQuery->execute([
+            ":user_id" => $user_id
+        ]);
+        $userInfos = $getUserQuery->fetch(PDO::FETCH_ASSOC);
+    
+        // Fermeture de la connexion
+        $connexion = null;
+    
+        // Réponse JSON indiquant le succès de l'opération et les informations de l'utilisateur
+        $response = [
+            "success" => true,
+            "message" => "Le statut de l'utilisateur a été mis à jour avec succès.",
+            "user" => $userInfos
+        ];
+        header('Content-Type: application/json');
+        echo json_encode($response, $userInfos);
+    }
+    
+
+    function deleteAccountForOneUser($user_id) {
+        $db = new Database();
+        $connexion = $db->getconnection();
+    
+        // Vérification des conditions supplémentaires avant de supprimer le compte de l'utilisateur
+    
+        // 1. Vérifier si l'utilisateur existe
+        $checkUserQuery = $connexion->prepare("
+            SELECT COUNT(*) as count
+            FROM user
+            WHERE user_id = :user_id
+        ");
+        $checkUserQuery->execute([
+            ":user_id" => $user_id
+        ]);
+        $userExists = $checkUserQuery->fetchColumn();
+    
+        if (!$userExists) {
+            // Si l'utilisateur n'existe pas, vous pouvez effectuer une action ou renvoyer un message d'erreur approprié
+            $message = "L'utilisateur spécifié n'existe pas.";
+            // Vous pouvez rediriger l'utilisateur vers une page spécifique, afficher un message d'erreur, etc.
+            $response = [
+                "success" => false,
+                "message" => $message
+            ];
+            header('Content-Type: application/json');
+            echo json_encode($response);
+            return;
+        }
+    
+        $request = $connexion->prepare("
+            DELETE FROM user 
+            WHERE user_id = :user_id
+        ");
+    
+        $request->execute([
+            ":user_id" => $user_id
+        ]);
+    
+        // Fermeture de la connexion
+        $connexion = null;
+    
+        // Réponse JSON indiquant le succès de l'opération
+        $response = [
+            "success" => true,
+            "message" => "Le compte de l'utilisateur a été supprimé avec succès."
+        ];
+        header('Content-Type: application/json');
+        echo json_encode($response);
+    }
+
