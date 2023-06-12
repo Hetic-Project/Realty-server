@@ -15,8 +15,8 @@ class Apartment {
 
         $title = $_POST["title"];
         $description = $_POST["description"];
-        $mainPicture = $_POST["mainPicture"];
-        $picture360 = $_POST["picture360"];
+        $mainPicture = $_FILES["mainPicture"];
+        $picture360 = $_FILES["picture360"];
         $adress = $_POST["adress"];
         $zipCode = $_POST["zipCode"];
         $city = $_POST["city"];
@@ -25,22 +25,205 @@ class Apartment {
         $bedroom = $_POST["bedroom"];
         $capacity = $_POST["capacity"];
 
+        if(
+        $title
+        && $description
+        && $mainPicture
+        && $picture360
+        && $adress
+        && $zipCode
+        && $city
+        && $price
+        && $size
+        && $bedroom
+        && $capacity
+        ){
+            // enregistrement de mainPicture
+            $mainPictureDir = './images/pictures/';
+            $mainPictureName = basename($mainPicture['name']);
+            $mainPicturePath = $mainPictureDir . $mainPictureName;
 
+            $imageFileType = strtolower(pathinfo($mainPicturePath, PATHINFO_EXTENSION));
+            if (!in_array($imageFileType, ['jpg', 'jpeg', 'png'])) {
+                header('HTTP/1.1 400 Bad Request');
+                echo json_encode(array('message' => 'Le fichier doit être une image (jpg, jpeg, png).'));
+                return;
+            }
+            // enregistrement de pisture360
+            $picture360Dir = './images/360/';
+            $picture360Name = basename($picture360['name']);
+            $picture360Path = $picture360Dir . $picture360Name;
 
+            $imageFileType = strtolower(pathinfo($picture360Path, PATHINFO_EXTENSION));
+            if (!in_array($imageFileType, ['jpg', 'jpeg', 'png'])) {
+                header('HTTP/1.1 400 Bad Request');
+                echo json_encode(array('message' => 'Le fichier doit être une image (jpg, jpeg, png).'));
+                return;
+            }
+
+            if(
+                move_uploaded_file($mainPicture['tmp_name'], $mainPicturePath) 
+                && move_uploaded_file($picture360['tmp_name'], $picture360Path) 
+            ) {
+
+                $request = $conexion->prepare("
+                    INSERT INTO apartment (
+                        apartment_title,
+                        apartment_description,
+                        apartment_main_picture,
+                        apartment_360_picture,
+                        apartment_adress,
+                        apartment_zip_code,
+                        apartment_city,
+                        apartment_price,
+                        apartment_size,
+                        apartment_bedroom,
+                        apartment_capacity   
+                    ) VALUES (
+                        :title
+                        :description
+                        :mainPicture
+                        :picture360
+                        :adress
+                        :zipCode
+                        :city
+                        :price
+                        :size
+                        :bedroom
+                        :capacity
+                    )
+                "); 
+
+                $mainPicturePath = 'http://localhost:4000/images/pictures/' . $mainPictureName;
+                $picture360Path = 'http://localhost:4000/images/pictures/' . $picture360Name;
+
+                $request->execute([
+                        ':title' => $title,
+                        ':description' => $description,
+                        ':mainPicture' => $mainPicturePath,
+                        ':picture360' => $picture360Path,
+                        ':adress' => $adress,
+                        ':zipCode' => $zipCode,
+                        ':city' => $city,
+                        ':price' => $price,
+                        ':size' => $size,
+                        ':bedroom' => $bedroom,
+                        ':capacity' => $capacity
+                ]);
+
+                $connexion= null;
+                $message = "l'appartement à bien été ajouter";
+                // header('Location: http://localhost:3000/messagePages/viewAllMessages.php=' . urlencode($message));
+                exit;
+            }else{
+                $connexion= null;
+                $message = "Enregitrement de l'image impossible";
+                // header('Location: http://localhost:3000/messagePages/viewAllMessages.php=' . urlencode($message));
+                exit;
+            }
+        }else{
+            $connexion= null;
+            $message = "tous les champs sont requis";
+            // header('Location: http://localhost:3000/messagePages/viewAllMessages.php=' . urlencode($message));
+            exit;
+        }
 
     }
 
-    function updateApartment(){
+    function updateApartment() {
         $db = new Database();
+        $connexion = $db->getConnection();
+    
+        $apartment_id = $_POST['apartment_id'];
+        $request = "UPDATE apartment SET ";
+    
+        $params = array(':apartment_id' => $apartment_id);
+    
+        if (!empty($_POST['title'])) {
+            $request .= "apartment_title = :title, ";
+            $params[':title'] = $_POST['title'];
+        }
+        if (!empty($_POST['description'])) {
+            $request .= "apartment_description = :description, ";
+            $params[':description'] = $_POST['description'];
+        }
+        if (!empty($_FILES['mainPicture'])) {
+            $request .= "apartment_main_picture = :mainPicture, ";
 
-        $connexion = $db->getconnection();
+            $mainPictureDir = './images/pictures/';
+            $mainPictureName = basename($mainPicture['name']);
+            $mainPicturePath = $mainPictureDir . $mainPictureName;
 
-        $request = $conexion->prepare("
-            SELECT *
-            FROM apartment
-            WHERE apartment_id = :apartment_id
-        ");
-        
+            $imageFileType = strtolower(pathinfo($mainPicturePath, PATHINFO_EXTENSION));
+            if (!in_array($imageFileType, ['jpg', 'jpeg', 'png'])) {
+                header('HTTP/1.1 400 Bad Request');
+                echo json_encode(array('message' => 'Le fichier doit être une image (jpg, jpeg, png).'));
+                return;
+            }
+            if(move_uploaded_file($mainPicture['tmp_name'], $mainPicturePath)){
+                $mainPicturePath = 'http://localhost:4000/images/pictures/' . $mainPictureName;
+                $params[':mainPicture'] = $mainPicturePath;
+            }
+        }
+        if (!empty($_POST['picture360'])) {
+            $request .= "apartment_360_picture = :picture360, ";
+
+            $picture360Dir = './images/360/';
+            $picture360Name = basename($picture360['name']);
+            $picture360Path = $picture360Dir . $picture360Name;
+
+            $imageFileType = strtolower(pathinfo($picture360Path, PATHINFO_EXTENSION));
+            if (!in_array($imageFileType, ['jpg', 'jpeg', 'png'])) {
+                header('HTTP/1.1 400 Bad Request');
+                echo json_encode(array('message' => 'Le fichier doit être une image (jpg, jpeg, png).'));
+                return;
+            }
+            if(move_uploaded_file($picture360['tmp_name'], $picture360Path)){
+                $picture360Path = 'http://localhost:4000/images/pictures/' . $picture360Name;
+                $params[':picture360'] = $picture360Path;
+            }
+        }
+        if (!empty($_POST['adress'])) {
+            $request .= "apartment_adress = :adress, ";
+            $params[':adress'] = $_POST['adress'];
+        }
+        if (!empty($_POST['zipCode'])) {
+            $request .= "apartment_zip_code = :zipCode, ";
+            $params[':zipCode'] = $_POST['zipCode'];
+        }
+        if (!empty($_POST['city'])) {
+            $request .= "apartment_city = :city, ";
+            $params[':city'] = $_POST['city'];
+        }
+        if (!empty($_POST['price'])) {
+            $request .= "apartment_price = :price, ";
+            $params[':price'] = $_POST['price'];
+        }
+        if (!empty($_POST['size'])) {
+            $request .= "apartment_size = :size, ";
+            $params[':size'] = $_POST['size'];
+        }
+        if (!empty($_POST['bedroom'])) {
+            $request .= "apartment_bedroom = :bedroom, ";
+            $params[':bedroom'] = $_POST['bedroom'];
+        }
+        if (!empty($_POST['capacity'])) {
+            $request .= "apartment_capacity = :capacity, ";
+            $params[':capacity'] = $_POST['capacity'];
+        }
+    
+        // Supprimez la virgule et l'espace supplémentaires à la fin de la requête
+        $request = rtrim($request, ', ');
+    
+        $request .= " WHERE apartment_id = :apartment_id";
+    
+        $stmt = $connexion->prepare($request);
+        $stmt->execute($params);
+    
+        $connexion = null;
+        $message = "L'appartement a bien été mis à jour";
+        // header('Location: http://localhost:3000/messagePages/viewAllMessages.php=' . urlencode($message));
+        exit;
     }
 
     function getOneApartment($apartment_id){
@@ -50,10 +233,28 @@ class Apartment {
         $connexion = $db->getconnection();
 
         // récupérer les infos d'un appartement 
-        $request = $conexion->prepare("
-            SELECT *
+        $request = $connexion->prepare("
+            SELECT apartment.*,
+            JSON_ARRAYAGG(JSON_OBJECT('service_name', service.service_name)) AS services,
+            (
+            SELECT JSON_ARRAYAGG(
+                JSON_OBJECT(
+                    'rental_id', apartment_rental_id,
+                    'rental_start', apartment_rental.apartment_rental_start,
+                    'rental_end', apartment_rental.apartment_rental_end
+                )
+            )
+            FROM apartment_rental
+            WHERE apartment_rental.apartment_rental_id = :apartment_id
+            AND (apartment_rental.apartment_rental_start >= CURDATE() 
+            OR CURDATE() BETWEEN apartment_rental.apartment_rental_start AND apartment_rental.apartment_rental_end)
+            ) AS rental_records
             FROM apartment
-            WHERE apartment_id = :apartment_id
+            LEFT JOIN apartment_service ON apartment.apartment_id = apartment_service.apartment_service_apartment_id
+            LEFT JOIN service ON apartment_service.apartment_service_service_id = service.service_id
+            WHERE apartment.apartment_id = :apartment_id
+            GROUP BY apartment.apartment_id
+    
         ");
         
         $request->execute([':apartment_id' => $apartment_id]);
@@ -118,7 +319,7 @@ class Apartment {
         $connexion= null;
 
         $message = "l'appartement à bien été suprimer";
-        header('Location: http://localhost:3000/messagePages/viewAllMessages.php=' . urlencode($message));
+        // header('Location: http://localhost:3000/messagePages/viewAllMessages.php=' . urlencode($message));
         exit;
 
     }
