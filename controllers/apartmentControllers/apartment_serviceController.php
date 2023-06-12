@@ -30,11 +30,50 @@ class Apartment_service {
     }
 
     function addApartmentService(){
-        
+        $db = new Database();
+
+        $connexion = $db->getconnection();
+
+        $apartment_service_id = $_POST["apartment_service_id"];
+        $apartment_service_name = $_POST["apartment_service_name"];
+
+        $request = $connexion->prepare("
+        INSERT INTO apartment_service (
+            apartment_service_id,
+            apartment_service_name
+        ) VALUE (
+            :apartment_service_id,
+            :apartment_service_name
+        )
+        ");
+
+        $request->execute([
+            ':apartment_service_id' => $apartment_service_id,
+            ':apartment_service_name' => $apartment_service_name
+        ]);
+
+        $apartmentInfos = $request->fetchAll(PDO::FETCH_ASSOC);
+
+        $connexion= null;
+        $message = "Le service de l'appartment a bien été ajouter";
+        // header('Location: http://localhost:3000/messagePages/viewAllMessages.php=' . urlencode($message));
+        exit;
     }
 
     function updateOneApartmentService(){
+        $db = new Database();
+
+        $connexion = $db->getconnection();
+
+        $apartment_service_id = $_POST["apartment_service_id"];
+        $apartment_service_name = $_POST["apartment_service_name"];
+
+        $request = "UPDATE apartment_service SET ";
         
+        $connexion = null;
+        $message = "Le service de l'apartment a bien été mis à jour";
+        // header('Location: http://localhost:3000/messagePages/viewAllMessages.php=' . urlencode($message));
+        exit;
     }
 
     function deleteOneApartmentService(){
