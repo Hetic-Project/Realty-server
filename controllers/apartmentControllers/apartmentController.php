@@ -273,6 +273,34 @@ class Apartment {
         echo json_encode($apartmentInfos);
     }
 
+    function getOneImageOfOneApartment($apartment_id){
+         // get avec parametre
+        $db = new Database();
+
+        $connexion = $db->getconnection();
+
+        // récupérer les infos d'un appartement 
+        $request = $connexion->prepare("
+            SELECT apartment_360_picture
+            FROM apartment
+            WHERE apartment_id = :apartment_id
+        ");
+
+        $request->execute([':apartment_id' => $apartment_id]);
+
+        $apartmentImage = $request->fetch(PDO::FETCH_ASSOC);
+
+        $connexion= null;
+
+        header("Access-Control-Allow-Origin: http://localhost:3000");
+        header("Access-Control-Allow-Methods: GET, POST");
+        header("Access-Control-Allow-Headers: Content-Type");
+        header("Access-Control-Allow-Credentials: true");
+
+        header('Content-Type: application/json');
+        echo json_encode($apartmentImage);
+    }
+
     function getAllApartment(){
         
         // 1. J'utilise l'objet Database
