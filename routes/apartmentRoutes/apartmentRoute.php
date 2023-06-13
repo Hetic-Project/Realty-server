@@ -52,10 +52,9 @@ switch ($url) {
         break;
 
     case preg_match('@^/get/image/(\d+)$@', $url, $matches) ? $url : '':
-        header("Access-Control-Allow-Origin: http://localhost:3000");
+        header("Access-Control-Allow-Origin: *");
         header("Access-Control-Allow-Methods: GET, POST");
         header("Access-Control-Allow-Headers: Content-Type");
-        header("Access-Control-Allow-Credentials: true");
         $controller = new Apartment();
         if ($method == 'GET') {
             $controller->getOneImageOfOneApartment($matches[1]);
