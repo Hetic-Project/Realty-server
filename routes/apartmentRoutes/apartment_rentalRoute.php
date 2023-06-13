@@ -36,10 +36,14 @@ switch ($url) {
         };
         break;
 
-    case '/apartment/get/allApartmentRental':
+    case preg_match('@^/apartment/get/allApartmentRental/(\d+)$@', $url, $matches) ? $url : '':
+        header("Access-Control-Allow-Origin: http://localhost:3000");
+        header("Access-Control-Allow-Methods: GET, POST");
+        header("Access-Control-Allow-Headers: Content-Type");
+        header("Access-Control-Allow-Credentials: true");
         $controller = new Apartment_rental();
         if ($method == 'GET') {
-            $controller->getAllApartmentRental();
+            $controller->getAllApartmentRental($matches[1]);
             $matched = true;
         } else {
             header('HTTP/1.1 405 Method Not Allowed');
