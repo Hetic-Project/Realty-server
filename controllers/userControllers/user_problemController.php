@@ -127,7 +127,20 @@ class user_problem {
     }
     
 
-    function updateUserProblemStatut($problemId, $newStatus){
+    function updateUserProblemStatut(){
+        // Vérification si la méthode de la requête est bien POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('HTTP/1.1 405 Method Not Allowed');
+            echo json_encode(['error' => 'Méthode non autorisée.']);
+            return;
+        }
+    
+        // Récupération des données du formulaire
+        $problemId = $_POST['problemId'];
+        $newStatus = $_POST['newStatus'];
+    
+        // Validation des données (ajoutez vos propres validations ici)
+    
         // 1. Utilisation de l'objet Database
         $db = new Database();
     
@@ -135,11 +148,7 @@ class user_problem {
         $connexion = $db->getconnection();
     
         // 3. Préparation de la requête pour mettre à jour le statut du problème utilisateur
-        $request = $connexion->prepare("
-        UPDATE user_problem
-        SET 
-        user_problem_statut = :newStatus 
-        WHERE user_problem_id = :problemId");
+        $request = $connexion->prepare("UPDATE user_problem SET problem_statut = :newStatus WHERE problem_id = :problemId");
     
         // 4. Exécution de la requête avec les paramètres
         $request->execute([
@@ -149,7 +158,7 @@ class user_problem {
     
         // 5. Vérification si la mise à jour a été effectuée
         if ($request->rowCount() > 0) {
-            // Mise à jour réussie, renvoyer un message de succès
+            // Mise à jour réussie, renvoyer une réponse JSON avec un message de succès
             header('Content-Type: application/json');
             echo json_encode(['success' => 'Statut du problème utilisateur mis à jour avec succès.']);
         } else {
@@ -158,6 +167,4 @@ class user_problem {
             echo json_encode(['error' => 'Impossible de mettre à jour le statut du problème utilisateur. Vérifiez les informations fournies.']);
         }
     }
-    
-    
 }
