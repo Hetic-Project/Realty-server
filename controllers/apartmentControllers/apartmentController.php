@@ -239,16 +239,17 @@ class Apartment {
             (
             SELECT JSON_ARRAYAGG(
                 JSON_OBJECT(
-                    'rental_id', apartment_rental_id,
-                    'rental_start', apartment_rental.apartment_rental_start,
-                    'rental_end', apartment_rental.apartment_rental_end
+                    'id', user_review.user_review_id,
+                    'firstname', user.user_firstname,
+                    'lastname', user.user_lastname,
+                    'comment', user_review.user_review_comment
                 )
             )
-            FROM apartment_rental
-            WHERE apartment_rental.apartment_rental_id = :apartment_id
-            AND (apartment_rental.apartment_rental_start >= CURDATE() 
-            OR CURDATE() BETWEEN apartment_rental.apartment_rental_start AND apartment_rental.apartment_rental_end)
-            ) AS rental_records
+            FROM user_review
+            JOIN user 
+            ON user_review.user_review_user_id = user.user_id
+            WHERE user_review.user_review_apartment_id = :apartment_id
+            ) AS reviews
             FROM apartment
             LEFT JOIN apartment_service ON apartment.apartment_id = apartment_service.apartment_service_apartment_id
             LEFT JOIN service ON apartment_service.apartment_service_service_id = service.service_id
@@ -297,6 +298,7 @@ class Apartment {
         header("Access-Control-Allow-Headers: Content-Type");
 
         header('Content-Type: application/json');
+        $apartmentImage['apartment_360_picture'] = str_replace('.', '-', $apartmentImage['apartment_360_picture']);
         echo json_encode($apartmentImage);
     }
 

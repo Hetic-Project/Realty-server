@@ -29,7 +29,7 @@ class Apartment_service {
         echo json_encode($apartmentInfos);
     }
 
-    function addApartmentService(){
+    function addApartmentService($apartment_id){
         $db = new Database();
 
         $connexion = $db->getconnection();
@@ -60,7 +60,7 @@ class Apartment_service {
         exit;
     }
 
-    function updateOneApartmentService(){
+    function updateOneApartmentService($service_id){
         $db = new Database();
 
         $connexion = $db->getconnection();
@@ -76,7 +76,10 @@ class Apartment_service {
         exit;
     }
 
-    function deleteOneApartmentService(){
+    function deleteOneApartmentService($service_id){
+        $db = new Database();
+
+        $connexion = $db->getconnection();
         
     }
 

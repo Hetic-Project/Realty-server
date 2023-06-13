@@ -59,12 +59,30 @@ switch ($url) {
         if ($method == 'GET') {
             $controller->getOneImageOfOneApartment($matches[1]);
             $matched = true;
-        } else {
+        } else{
             header('HTTP/1.1 405 Method Not Allowed');
             header('Allow: GET');
         };
 
         break;
+
+    case preg_match('@^/images/(.*)$@', $url, $matches) ? $url : '':
+            header("Access-Control-Allow-Origin: http://localhost:3000");
+            header("Access-Control-Allow-Methods: GET, POST");
+            header("Access-Control-Allow-Headers: Content-Type");
+            header("Access-Control-Allow-Credentials: true");
+
+            // /image/pano1.jpg
+            // $matches[1] = pano1.jpg
+            // chemin ver l'image : /img/pano1.jpg
+            $chemin = './img/' . str_replace('-', '.', $matches[1]);
+            if(file_exists($chemin))
+            {
+                $matched = true;
+                header('Content-Type: image/jpg');
+                readfile($chemin);
+            }
+            break;
 
     case '/apartment/get/allApartment':
             $controller = new Apartment();
