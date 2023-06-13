@@ -21,12 +21,12 @@ class Apartment_service {
 
         $request->execute([':apartment_id' => $apartment_id]);
 
-        $apartmentInfos = $request->fetchAll(PDO::FETCH_ASSOC);
+        $apartmentService = $request->fetchAll(PDO::FETCH_ASSOC);
 
         $connexion = null;
 
         header('Content-Type: application/json');
-        echo json_encode($apartmentInfos);
+        echo json_encode($apartmentService);
     }
 
     function addApartmentService($apartment_id){
@@ -52,7 +52,7 @@ class Apartment_service {
             ':apartment_service_name' => $apartment_service_name
         ]);
 
-        $apartmentInfos = $request->fetchAll(PDO::FETCH_ASSOC);
+        $apartmentService = $request->fetchAll(PDO::FETCH_ASSOC);
 
         $connexion= null;
         $message = "Le service de l'appartment a bien été ajouter";
@@ -81,6 +81,15 @@ class Apartment_service {
 
         $connexion = $db->getconnection();
         
+        $request = $connexion->prepare("
+            DELETE FROM apartment_service
+            WHERE service_id = :service_id
+        ");
+        $connexion= null;
+
+        $message = "Le service à bien été suprimer";
+        // header('Location: http://localhost:3000/messagePages/viewAllMessages.php=' . urlencode($message));
+        exit;
     }
 
 }
