@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 <?php
 //Inclusion du fichier pour afficher les erreurs 
 require_once './debug.php';
@@ -26,4 +24,3 @@ class User_review {
     }
     
 }
->>>>>>> 410e142a75834d728958d4857120eb7e838b9e31
