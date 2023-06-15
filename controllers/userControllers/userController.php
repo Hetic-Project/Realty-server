@@ -192,78 +192,62 @@ class User {
         echo json_encode($userInfos);
     }
 
-    function updateAccountForOneUser($user_id, $user_statut, $old_password, $new_password, $new_birth) {
+    function updateAccountForOneUser(){
+        // Vérification si la méthode de la requête est bien POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('HTTP/1.1 405 Method Not Allowed');
+            echo json_encode(['error' => 'Méthode non autorisée.']);
+            return;
+        }
+    
+        // Récupération des données du formulaire
+        $userId = $_POST['userId'];
+        $firstname = $_POST['firstname'];
+        $lastname = $_POST['lastname'];
+        $mail = $_POST['mail'];
+        $password = $_POST['password'];
+        $birthday = $_POST['birthday'];
+    
+        // Validation des données (ajoutez vos propres validations ici)
+    
+        // 1. Utilisation de l'objet Database
         $db = new Database();
+    
+        // 2. Appel de la fonction getconnection de Database
         $connexion = $db->getconnection();
     
-        // Vérification de l'ancien mot de passe
+        // 3. Préparation de la requête pour mettre à jour le compte utilisateur
         $request = $connexion->prepare("
-            SELECT user_password
-            FROM user
-            WHERE user_id = :user_id
+            UPDATE user 
+            SET user_firstname = :firstname,
+                user_lastname = :lastname,
+                user_mail = :mail,
+                user_password = :password,
+                user_birth = :birthday
+            WHERE user_id = :userId
         ");
-        $request->execute([":user_id" => $user_id]);
-        $userInfos = $request->fetch(PDO::FETCH_ASSOC);
     
-        if ($userInfos && password_verify($old_password, $userInfos['user_password'])) {
-            // Mise à jour du mot de passe
-            if (!empty($new_password)) {
-                $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-                $request = $connexion->prepare("
-                    UPDATE user
-                    SET user_password = :password
-                    WHERE user_id = :user_id
-                ");
-                $request->execute([
-                    ":password" => $hashed_password,
-                    ":user_id" => $user_id
-                ]);
-            }
+        // 4. Exécution de la requête avec les paramètres
+        $request->execute([
+            ":firstname" => $firstname,
+            ":lastname" => $lastname,
+            ":mail" => $mail,
+            ":password" => $password,
+            ":birthday" => $birthday,
+            ":userId" => $userId
+        ]);
     
-            // Mise à jour de user_birth (maximum 2 fois par an)
-            if (!empty($new_birth)) {
-                $request = $connexion->prepare("
-                    SELECT COUNT(*) as birth_updates
-                    FROM user
-                    WHERE user_id = :user_id
-                    AND YEAR(user_birth) = YEAR(CURRENT_DATE())
-                ");
-                $request->execute([":user_id" => $user_id]);
-                $result = $request->fetch(PDO::FETCH_ASSOC);
-    
-                if ($result['birth_updates'] < 2) {
-                    $request = $connexion->prepare("
-                        UPDATE user
-                        SET user_birth = :new_birth
-                        WHERE user_id = :user_id
-                    ");
-                    $request->execute([
-                        ":new_birth" => $new_birth,
-                        ":user_id" => $user_id
-                    ]);
-                }
-            }
-    
-            // Mise à jour du statut de l'utilisateur
-            $request = $connexion->prepare("
-                UPDATE user
-                SET user_statut = :user_statut
-                WHERE user_id = :user_id
-            ");
-            $request->execute([
-                ":user_statut" => $user_statut,
-                ":user_id" => $user_id
-            ]);
-    
-            // Fermeture de la connexion
-            $connexion = null;
-
-            #$userInfos = $request->fetch(PDO::FETCH_ASSOC);
+        // 5. Vérification si la mise à jour a été effectuée
+        if ($request->rowCount() > 0) {
+            // Mise à jour réussie, renvoyer une réponse JSON avec un message de succès
             header('Content-Type: application/json');
-            echo json_encode($userInfos, $result);
+            echo json_encode(['success' => 'Compte utilisateur mis à jour avec succès.']);
+        } else {
+            // Aucune ligne affectée, l'utilisateur peut ne pas exister ou les données sont les mêmes
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Impossible de mettre à jour le compte utilisateur. Vérifiez les informations fournies.']);
         }
     }
-    
 
     function getAccountForOneUser($user_id){
 
@@ -295,12 +279,7 @@ class User {
         // je renvoie au front les données au format json
         header('Content-Type: application/json');
         echo json_encode($user);
-    }
-
-
-        
-    }
-
+    }   
 
     function desactiveAccountForOneUser($user_id) {
         $db = new Database();
@@ -433,14 +412,16 @@ class User {
         echo json_encode($response);
     }
     
-
     function updateStatutForOneUser($user_id, $new_statut) {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('HTTP/1.1 405 Method Not Allowed');
+            echo json_encode(['error' => 'Méthode non autorisée.']);
+            return;
+        }
+    
         $db = new Database();
         $connexion = $db->getconnection();
     
-        // Vérification des conditions supplémentaires avant de mettre à jour le statut de l'utilisateur
-    
-        // 1. Vérifier si l'utilisateur existe
         $checkUserQuery = $connexion->prepare("
             SELECT COUNT(*) as count
             FROM user
@@ -452,9 +433,7 @@ class User {
         $userExists = $checkUserQuery->fetchColumn();
     
         if (!$userExists) {
-            // Si l'utilisateur n'existe pas, vous pouvez effectuer une action ou renvoyer un message d'erreur approprié
             $message = "L'utilisateur spécifié n'existe pas.";
-            // Vous pouvez rediriger l'utilisateur vers une page spécifique, afficher un message d'erreur, etc.
             $response = [
                 "success" => false,
                 "message" => $message
@@ -463,7 +442,7 @@ class User {
             echo json_encode($response);
             return;
         }
-
+    
         $request = $connexion->prepare("
             UPDATE user 
             SET user_statut = :new_statut
@@ -475,7 +454,6 @@ class User {
             ":new_statut" => $new_statut
         ]);
     
-        // Récupération des informations de l'utilisateur après la mise à jour
         $getUserQuery = $connexion->prepare("
             SELECT *
             FROM user
@@ -486,19 +464,16 @@ class User {
         ]);
         $userInfos = $getUserQuery->fetch(PDO::FETCH_ASSOC);
     
-        // Fermeture de la connexion
         $connexion = null;
     
-        // Réponse JSON indiquant le succès de l'opération et les informations de l'utilisateur
         $response = [
             "success" => true,
             "message" => "Le statut de l'utilisateur a été mis à jour avec succès.",
             "user" => $userInfos
         ];
         header('Content-Type: application/json');
-        echo json_encode($response, $userInfos);
+        echo json_encode($response);
     }
-    
 
     function deleteAccountForOneUser($user_id) {
         $db = new Database();
@@ -551,3 +526,4 @@ class User {
         echo json_encode($response);
     }
 
+}
