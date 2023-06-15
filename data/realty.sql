@@ -1,3 +1,4 @@
+-- SQLBook: Code
 -- sudo mysql -u root
 -- CREATE DATABASE realty;
 -- use realty
