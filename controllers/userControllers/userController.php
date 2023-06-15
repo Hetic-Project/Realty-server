@@ -58,7 +58,7 @@ class User {
 
         // 8. J'envoie une réponse
         $message = "le compte a bien été créé";
-        header('Location: http://localhost:3000/Page/login.php?message=' . urlencode($message));
+        header('Location: http://localhost:3000/pages/userspace/login.php?message=' . urlencode($message));
         exit;
 
     }
@@ -95,14 +95,14 @@ class User {
                     // je stock dans la session l'id
                     $_SESSION['id'] = $userInfos['user_id'];
                     $_SESSION['statut'] = $userInfos['user_statut'];
-                    header('HTTP/1.1 200 OK');
-                    $message = "Connexion réussie";
-                    header('Location: http://localhost:3000/Page/publications.php?message=' . urlencode($message));
+                    
+                    $message = 'vous ête connecter';
+                    header('Location: http://localhost:3000/pages/userspace/login.php?message=' . urlencode($message) . $_SESSION['id']);
                     exit;
 
                 }else {
                     // si le compte est désactiver 
-                    header('Location: http://localhost:3000/Page/login.php?id=' . urlencode($userInfos['id']));
+                    header('Location: http://localhost:3000/pages/userspace/login.php?id=' . urlencode($userInfos['id']));
                     exit;
                 }
                 
@@ -110,13 +110,13 @@ class User {
                 // si le mail ou le mot de passe est incorect
                 header("HTTP/1.1 402");
                 $message = "le nom d'utilisateur ou le mot de passe est incorrect";
-                header('Location: http://localhost:3000/Page/login.php?message=' . urlencode($message));
+                header('Location: http://localhost:3000/pages/userspace/login.php?message=' . urlencode($message));
                 exit;
             }
         } else {
             // si il y a un champ qui n'est pas rempli
             $message = "Tout les champs sont requis";
-            header('Location: http://localhost:3000/Page/login.php?message=' . urlencode($message));
+            header('Location: http://localhost:3000/pages/userspace/login.php?message=' . urlencode($message));
             exit;
         }
         
@@ -182,7 +182,7 @@ class User {
         FROM user
         WHERE users_firstname LIKE :params 
         OR users_lastname LIKE :params
-    ");
+        ");
 
         // 4. J'exécute ma requête
         $request->execute([":params" => $params]);
@@ -193,13 +193,6 @@ class User {
     }
 
     function updateAccountForOneUser(){
-        // Vérification si la méthode de la requête est bien POST
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('HTTP/1.1 405 Method Not Allowed');
-            echo json_encode(['error' => 'Méthode non autorisée.']);
-            return;
-        }
-    
         // Récupération des données du formulaire
         $userId = $_POST['userId'];
         $firstname = $_POST['firstname'];
@@ -207,6 +200,10 @@ class User {
         $mail = $_POST['mail'];
         $password = $_POST['password'];
         $birthday = $_POST['birthday'];
+        $phone = $_POST['phone'];
+        $address = $_POST['address'];
+        $zipCode = $_POST['zipCode'];
+        $city = $_POST['city'];
     
         // Validation des données (ajoutez vos propres validations ici)
     
@@ -215,38 +212,62 @@ class User {
     
         // 2. Appel de la fonction getconnection de Database
         $connexion = $db->getconnection();
-    
-        // 3. Préparation de la requête pour mettre à jour le compte utilisateur
-        $request = $connexion->prepare("
-            UPDATE user 
-            SET user_firstname = :firstname,
-                user_lastname = :lastname,
-                user_mail = :mail,
-                user_password = :password,
-                user_birth = :birthday
-            WHERE user_id = :userId
-        ");
-    
-        // 4. Exécution de la requête avec les paramètres
-        $request->execute([
-            ":firstname" => $firstname,
-            ":lastname" => $lastname,
-            ":mail" => $mail,
-            ":password" => $password,
-            ":birthday" => $birthday,
-            ":userId" => $userId
-        ]);
-    
-        // 5. Vérification si la mise à jour a été effectuée
-        if ($request->rowCount() > 0) {
-            // Mise à jour réussie, renvoyer une réponse JSON avec un message de succès
-            header('Content-Type: application/json');
-            echo json_encode(['success' => 'Compte utilisateur mis à jour avec succès.']);
-        } else {
-            // Aucune ligne affectée, l'utilisateur peut ne pas exister ou les données sont les mêmes
-            header('Content-Type: application/json');
-            echo json_encode(['error' => 'Impossible de mettre à jour le compte utilisateur. Vérifiez les informations fournies.']);
+
+        // je stock la requête dans une variable
+        $request = "UPDATE user SET ";
+        // je stock l'id de l'enregitrement a modifier
+        $params = array(':user_id' => $userId);
+
+        // Je vérifie que le champ a bien été renseigner
+        if (!empty($firstname)) {
+            $request .= "user_firstname = :firstname, ";
+            $params[':firstname'] = $firstname;
         }
+        if (!empty($lastname)) {
+            $request .= "user_lastname = :lastname, ";
+            $params[':lastname'] = $lastname;
+        }
+        if (!empty($mail)) {
+            $request .= "user_mail = :mail, ";
+            $params[':mail'] = $mail;
+        }
+        if (!empty($password)) {
+            $request .= "user_password = :password, ";
+            $params[':password'] = $password;
+        }
+        if (!empty($birthday)) {
+            $request .= "user_birth = :birthday, ";
+            $params[':birthday'] = $birthday;
+        }
+        if (!empty($phone)) {
+            $request .= "user_phone = :phone, ";
+            $params[':phone'] = $phone;
+        }
+        if (!empty($address)) {
+            $request .= "user_address = :address, ";
+            $params[':address'] = $address;
+        }
+        if (!empty($zipCode)) {
+            $request .= "user_zip_code = :zipCode, ";
+            $params[':zipCode'] = $zipCode;
+        }
+        if (!empty($city)) {
+            $request .= "user_city = :city, ";
+            $params[':city'] = $city;
+        }
+
+        // Supprimez la virgule et l'espace supplémentaires à la fin de la requête
+        $request = rtrim($request, ', ');
+    
+        $request .= " WHERE user_id = :userId";
+     
+        $stmt = $connexion->prepare($request);
+        $stmt->execute($params);
+     
+        $connexion = null;
+        $message = "Vos informations personnelles ont bien été mise a jour";
+        header('Location: http://localhost:3000/pages/userspace/profile.php?message=' . urlencode($message));
+        exit;
     }
 
     function getAccountForOneUser($user_id){
@@ -259,14 +280,36 @@ class User {
 
         // je prépare la requête
         $sql = $connexion->prepare("
-        SELECT * FROM user
-        WHERE user.user_id = :user_id
-        UNION ALL
-        SELECT * FROM apartment_rental
-        WHERE user.user_id = :user_id
-        UNION ALL
-        SELECT * FROM user_invoice
-        WHERE user.user_id = :user_id;
+        SELECT user.*,
+            JSON_ARRAYAGG(JSON_OBJECT(
+                'apartment-name', apartment.apartment_adress,
+                'apartment-zipCode', apartment.apartment_zip_code,
+                'apartment-city', apartment.apartment_city,
+                'start-date', apartment_rental.apartment_rental_start,
+                'end-date', apartment_rental.apartment_rental_end
+
+            )) AS rentals,
+            (
+            SELECT JSON_ARRAYAGG(
+                JSON_OBJECT(
+                    'apartment-name', apartment.apartment_adress,
+                    'apartment-zipCode', apartment.apartment_zip_code,
+                    'apartment-city', apartment.apartment_city,
+                    'payment-date', user_invoice.user_invoice_created_at,
+                    'amount', user_invoice.user_invoice_amount
+                )
+            )
+            FROM user_invoice
+            JOIN apartment 
+            ON user_invoice.user_invoice_apartment_id = apartment.apartment_id
+            WHERE user_invoice.user_invoice_user_id = :user_id
+            ORDER BY user_invoice.user_invoice_created_at DESC
+            ) AS invoices
+            FROM user
+            LEFT JOIN apartment_rental ON apartment_rental.apartment_rental_user_id = user.user_id
+            LEFT JOIN apartment ON apartment_rental.apartment_rental_apartement_id = apartment.apartment_id
+            WHERE user.user_id = :user_id
+            GROUP BY user.user_id
 
         ");
         // j'exécute la requête
@@ -285,31 +328,6 @@ class User {
         $db = new Database();
         $connexion = $db->getconnection();
     
-        // Vérification des conditions supplémentaires avant de désactiver le compte
-    
-        // 1. Vérifier si l'utilisateur est déjà désactivé
-        $checkStatusQuery = $connexion->prepare("
-            SELECT user_active
-            FROM user
-            WHERE user_id = :user_id
-        ");
-        $checkStatusQuery->execute([
-            ":user_id" => $user_id
-        ]);
-        $userStatus = $checkStatusQuery->fetchColumn();
-    
-        if ($userStatus == 0) {
-            // Si le compte est déjà désactivé, vous pouvez effectuer une action ou renvoyer un message d'erreur approprié
-            $message = "Le compte est déjà désactivé.";
-            // Vous pouvez rediriger l'utilisateur vers une page spécifique, afficher un message d'erreur, etc.
-            $response = [
-                "success" => false,
-                "message" => $message
-            ];
-            header('Content-Type: application/json');
-            echo json_encode($response);
-            return;
-        }
 
         $request = $connexion->prepare("
             UPDATE user 
@@ -321,95 +339,35 @@ class User {
             ":user_id" => $user_id
         ]);
     
-        // Récupération des informations de l'utilisateur après la mise à jour
-        $getUserQuery = $connexion->prepare("
-            SELECT *
-            FROM user
-            WHERE user_id = :user_id
-        ");
-        $getUserQuery->execute([
-            ":user_id" => $user_id
-        ]);
-        $userInfos = $getUserQuery->fetch(PDO::FETCH_ASSOC);
-    
         // Fermeture de la connexion
         $connexion = null;
-    
-        // Réponse JSON indiquant le succès de l'opération et les informations de l'utilisateur
-        $response = [
-            "success" => true,
-            "message" => "Le compte a été désactivé avec succès.",
-            "user" => $userInfos
-        ];
-        header('Content-Type: application/json');
-        echo json_encode($response);
-    }
-    
 
+        $message = "Le compte a bien été désactiver ";
+        header('Location: http://localhost:3000/pages/userspace/login.php?message=' . urlencode($message));
+        exit;
+    
+       
+    }
 
     function reactiveAccountForOneUser($user_id, $user_statut) {
         $db = new Database();
         $connexion = $db->getconnection();
     
-        // Vérification des conditions supplémentaires avant de réactiver le compte
-    
-        // 1. Vérifier si l'utilisateur est déjà actif
-        $checkStatusQuery = $connexion->prepare("
-            SELECT user_active
-            FROM user
-            WHERE user_id = :user_id
-        ");
-        $checkStatusQuery->execute([
-            ":user_id" => $user_id
-        ]);
-        $userStatus = $checkStatusQuery->fetchColumn();
-    
-        if ($userStatus == 1) {
-            // Si le compte est déjà actif, vous pouvez effectuer une action ou renvoyer un message d'erreur approprié
-            $message = "Le compte est déjà actif.";
-            // Vous pouvez rediriger l'utilisateur vers une page spécifique, afficher un message d'erreur, etc.
-            $response = [
-                "success" => false,
-                "message" => $message
-            ];
-            header('Content-Type: application/json');
-            echo json_encode($response);
-            return;
-        }
-    
         $request = $connexion->prepare("
             UPDATE user 
-            SET user_active = 1, user_statut = :user_statut
+            SET user_active = 1
             WHERE user_id = :user_id
         ");
     
-        $request->execute([
-            ":user_id" => $user_id,
-            ":user_statut" => $user_statut
-        ]);
-    
-        // Récupération des informations de l'utilisateur après la mise à jour
-        $getUserQuery = $connexion->prepare("
-            SELECT *
-            FROM user
-            WHERE user_id = :user_id
-        ");
-        $getUserQuery->execute([
-            ":user_id" => $user_id
-        ]);
-        $userInfos = $getUserQuery->fetch(PDO::FETCH_ASSOC);
+        $request->execute([":user_id" => $user_id]);
     
         // Fermeture de la connexion
         $connexion = null;
-    
-        // Réponse JSON indiquant le succès de l'opération et les informations de l'utilisateur
-        $response = [
-            "success" => true,
-            "message" => "Le compte a été réactivé avec succès.",
-            "user" => $userInfos
-        ];
-        header('Content-Type: application/json');
-        echo json_encode($response);
+
+        $message = "Le compte a bien été réactiver ";
+        header('Location: http://localhost:3000/pages/userspace/login.php?message=' . urlencode($message));
+        exit;
+
     }
     
     function updateStatutForOneUser($user_id, $new_statut) {
