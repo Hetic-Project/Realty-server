@@ -63,7 +63,6 @@ class User {
 
     }
 
-
     function loginAccount(){
 
         $db = new Database();
@@ -97,7 +96,7 @@ class User {
                     $_SESSION['statut'] = $userInfos['user_statut'];
                     
                     $message = 'vous ête connecter';
-                    header('Location: http://localhost:3000/pages/userspace/login.php?message=' . urlencode($message) . $_SESSION['id']);
+                    header('Location: http://localhost:3000/pages/userspace/profile.php');
                     exit;
 
                 }else {
@@ -198,7 +197,6 @@ class User {
         $firstname = $_POST['firstname'];
         $lastname = $_POST['lastname'];
         $mail = $_POST['mail'];
-        $password = $_POST['password'];
         $birthday = $_POST['birthday'];
         $phone = $_POST['phone'];
         $address = $_POST['address'];
@@ -216,7 +214,7 @@ class User {
         // je stock la requête dans une variable
         $request = "UPDATE user SET ";
         // je stock l'id de l'enregitrement a modifier
-        $params = array(':user_id' => $userId);
+        $params = array(':userId' => $userId);
 
         // Je vérifie que le champ a bien été renseigner
         if (!empty($firstname)) {
@@ -322,7 +320,16 @@ class User {
         // je renvoie au front les données au format json
         header('Content-Type: application/json');
         echo json_encode($user);
-    }   
+    }
+    
+    function logoutAccount(){
+        session_start();
+        $_SESSION['id'] = null;
+        $_SESSION['statut'] = null;
+        session_destroy();
+
+        header('Location: http://localhost:3000');
+    }
 
     function desactiveAccountForOneUser($user_id) {
         $db = new Database();
