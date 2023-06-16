@@ -98,18 +98,18 @@ class user_problem {
         // 3. Préparation de la requête pour récupérer tous les problèmes utilisateur
         $request = $connexion->prepare("
             SELECT 
-            user_id
-            user_firstname, 
-            user_lastname,
-            user_statut, 
-            user_problem_description, 
-            user_problem_created_at
+            user.user_id,
+            user.user_firstname, 
+            user.user_lastname,
+            user.user_statut, 
+            user_problem.user_problem_description, 
+            user_problem.user_problem_created_at
             FROM user_problem
             JOIN user
             ON user_problem.user_problem_user_id = user.user_id
             WHERE user_problem.user_problem_apartment_id = :apartment_id
             AND user_problem_user_id = :user_id
-            OR user_statut = 'Logistique'
+            OR user_statut = 'Logistique' AND user_problem.user_problem_apartment_id = :apartment_id
         ");
     
         // 4. Exécution de la requête

@@ -575,7 +575,9 @@ INSERT INTO `user_problem` (
 ) VALUES 
 (1, 2, 'les rideaux sont déchirer', '2023/07/02'),
 (2, 2, 'un technicien viendra les remplacer ce jour', '2023/07/02'),
-(3, 1, 'il n''y a plus d''eau chaude', '2023/07/11');
+(3, 1, 'il n''y a plus d''eau chaude', '2023/07/11'),
+(7, 1, 'un technicien viendra les remplacer ce jour', '2023/07/02');
+
 
 INSERT INTO `user_invoice` (
     `user_invoice_user_id`,
