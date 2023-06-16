@@ -88,7 +88,7 @@ class user_problem {
     }
     
 
-    function getAllUserProblem($loggedInUserId){
+    function getAllUserProblem($apartment_id, $user_id){
         // 1. Utilisation de l'objet Database
         $db = new Database();
     
@@ -96,35 +96,36 @@ class user_problem {
         $connexion = $db->getconnection();
     
         // 3. Préparation de la requête pour récupérer tous les problèmes utilisateur
-        $request = $connexion->prepare("SELECT * FROM user_problem");
+        $request = $connexion->prepare("
+            SELECT 
+            user_id
+            user_firstname, 
+            user_lastname,
+            user_statut, 
+            user_problem_description, 
+            user_problem_created_at
+            FROM user_problem
+            JOIN user
+            ON user_problem.user_problem_user_id = user.user_id
+            WHERE user_problem.user_problem_apartment_id = :apartment_id
+            AND user_problem_user_id = :user_id
+            OR user_statut = 'Logistique'
+        ");
     
         // 4. Exécution de la requête
-        $request->execute();
+        $request->execute([
+            ':apartment_id' => $apartment_id,
+            ':user_id' => $user_id
+        
+        ]);
     
         // 5. Récupération des données des problèmes utilisateur
         $userProblems = $request->fetchAll(PDO::FETCH_ASSOC);
     
-        // 6. Vérification de l'existence des problèmes
-        if ($userProblems) {
-            // Tableau pour stocker les problèmes autorisés
-            $authorizedProblems = [];
-    
-            // Parcours des problèmes
-            foreach ($userProblems as $problem) {
-                // Vérification si l'utilisateur connecté est autorisé à accéder au problème
-                if ($problem['user_id'] == $loggedInUserId) {
-                    $authorizedProblems[] = $problem;
-                }
-            }
-    
-            // Renvoyer les problèmes autorisés au format JSON
-            header('Content-Type: application/json');
-            echo json_encode($authorizedProblems);
-        } else {
-            // Aucun problème trouvé, renvoyer un message d'erreur
-            header('Content-Type: application/json');
-            echo json_encode(['error' => 'Aucun problème utilisateur trouvé.']);
-        }
+        // Renvoyer les problèmes autorisés au format JSON
+        header('Content-Type: application/json');
+        echo json_encode($userProblems);
+        
     }
     
     

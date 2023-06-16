@@ -37,10 +37,10 @@ switch ($url) {
         break;
     
 
-    case '/user/problemUserGetAll':
+    case preg_match('@^/user/problemUserGetAll/(\d+)/(\d+)$@', $url, $matches) ? $url : ''  :
             $controller = new User_problem();
             if ($method == 'GET') {
-                $controller->getAllUserProblem();
+                $controller->getAllUserProblem($matches[1], $matches[2]);
                 $matched = true;
             } else {
                 header('HTTP/1.1 405 Method Not Allowed');

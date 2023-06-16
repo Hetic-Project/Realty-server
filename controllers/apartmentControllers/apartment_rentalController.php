@@ -121,6 +121,37 @@ class Apartment_rental {
         
     }
 
+    function getApartmentRentalInProgress($user_id){
+        $db = new Database();
+
+        $connexion = $db->getconnection();
+        
+        $request = $connexion->prepare("
+            SELECT
+            apartment.apartment_id,  
+            apartment.apartment_adress,
+            apartment.apartment_zip_code,
+            apartment.apartment_city
+            FROM apartment_rental
+            JOIN apartment ON apartment_rental.apartment_rental_apartement_id = apartment_id
+            JOIN user ON apartment_rental.apartment_rental_user_id = user.user_id
+            WHERE apartment_rental.apartment_rental_user_id = :user_id
+            AND CURRENT_DATE BETWEEN apartment_rental.apartment_rental_start AND apartment_rental.apartment_rental_end;
+            
+        ");
+
+        $request->execute([':user_id' => $user_id]);
+
+        $apartmentsRental = $request->fetch(PDO::FETCH_ASSOC);
+
+        $connexion = null;
+
+        header('Content-Type: application/json');
+        echo json_encode($apartmentsRental);
+
+        
+    }
+
     function updateApartmentRental($rental_id){
         
     }

@@ -394,14 +394,14 @@ INSERT INTO `user` (
 ),
 (
     'Rubens',
-    'Cardonnel',
+    'Bonnin',
     '2004/06/21',
     '$2a$12$9LQALo1pqUqZeHK4t0vLpOI5m.BZV9hxW2GfrtoI/lSa68edXB1Mi',
     '06-00-00-00-00',
     '5 rue du mancho',
     '42000',
     'saint étienne',
-    'kevin.bernard@gmail.com',
+    'Rubens.Bonnin@gmail.com',
     'Menage'
 ),
 (
@@ -428,6 +428,7 @@ INSERT INTO `apartment_rental` (
 
 ) VALUES 
 (1, 2, '2023/06/01', '2023/06/10'),
+(1, 2, '2023/06/15', '2023/06/26'),
 (3, 1, '2023/07/10', '2023/07/17'),
 (1, 3, '2023/07/20', '2023/07/27'),
 (3, 4, '2023/08/01', '2023/08/07'),
@@ -573,6 +574,7 @@ INSERT INTO `user_problem` (
 
 ) VALUES 
 (1, 2, 'les rideaux sont déchirer', '2023/07/02'),
+(2, 2, 'un technicien viendra les remplacer ce jour', '2023/07/02'),
 (3, 1, 'il n''y a plus d''eau chaude', '2023/07/11');
 
 INSERT INTO `user_invoice` (

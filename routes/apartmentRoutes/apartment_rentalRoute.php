@@ -50,6 +50,18 @@ switch ($url) {
             header('Allow: GET');
         };
         break;
+
+    case preg_match('@^/apartment/get/rentalInProgress/(\d+)$@', $url, $matches) ? $url : '':
+
+        $controller = new Apartment_rental();
+        if ($method == 'GET') {
+            $controller->getApartmentRentalInProgress($matches[1]);
+            $matched = true;
+        } else {
+            header('HTTP/1.1 405 Method Not Allowed');
+            header('Allow: GET');
+        };
+        break;
     
     case '/apartment/update/apartmentRental/':
         $controller = new Apartment_rental();
