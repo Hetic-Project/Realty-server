@@ -17,38 +17,34 @@ class user_problem {
 
         // 3. Récupérer les champs du formulaire
         $user_id = $_POST['user_id'];
+        $apartment_id = $_POST['apartment_id'];
         $problem_description = $_POST['problem_description'];
-        $problem_date = $_POST['problem_date'];
 
         // 4. Préparer la requête pour insérer le problème d'utilisateur dans la base de données
         $request = $connexion->prepare("
             INSERT INTO user_problem (
-                user_id,
-                problem_description,
-                problem_date
+                user_problem_user_id,
+                user_problem_apartment_id,
+                user_problem_description
             ) VALUES (
                 :user_id,
-                :problem_description,
-                :problem_date
+                :apartment_id,
+                :problem_description
             )
         ");
 
         // 5. Exécuter la requête
         $request->execute([
             ":user_id" => $user_id,
-            ":problem_description" => $problem_description,
-            ":problem_date" => $problem_date
+            ":apartment_id" => $apartment_id,
+            ":problem_description" => $problem_description
         ]);
-
-        // 6. Récupérer les données insérées
-        $insertedData = $request->fetch(PDO::FETCH_ASSOC);
 
         // 7. Fermer la connexion à la base de données
         $connexion = null;
 
-        // 8. Envoyer une réponse avec les données insérées
-        header('Content-Type: application/json');
-        echo json_encode($insertedData);
+        header('Location: http://localhost:3000/pages/userspace/message.php');
+        exit;
     }
 
     

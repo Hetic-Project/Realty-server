@@ -377,7 +377,7 @@ INSERT INTO `user` (
     '5 rue du mancho',
     '42000',
     'saint étienne',
-    'kevin.bernard@gmail.com',
+    'lucas.yalman@gmail.com',
     'Admin'
 ),
 (
@@ -389,7 +389,7 @@ INSERT INTO `user` (
     '5 rue du mancho',
     '42000',
     'saint étienne',
-    'kevin.bernard@gmail.com',
+    'tom.cardonnel@gmail.com',
     'Menage'
 ),
 (
@@ -413,7 +413,7 @@ INSERT INTO `user` (
     '5 rue du mancho',
     '42000',
     'saint étienne',
-    'kevin.bernard@gmail.com',
+    'alexendre.cardonnel@gmail.com',
     'Logistique'
 );
 
