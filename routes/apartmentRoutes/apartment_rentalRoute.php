@@ -16,12 +16,12 @@ switch ($url) {
     // preg_mag est utiliser pour les routes en GET qui on un paramettre dans l'url
     case '/apartment/add/apartmentRental':
         $controller = new Apartment_rental();
-        if ($method == 'GET') {
+        if ($method == 'POST') {
             $controller->addApartmentRental();
             $matched = true;
         } else {
             header('HTTP/1.1 405 Method Not Allowed');
-            header('Allow: GET');
+            header('Allow: POST');
         };
         break;
         

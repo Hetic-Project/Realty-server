@@ -391,6 +391,7 @@ class Apartment {
         }else if ($zipCode && $startDate && $endDate){
             $request = $connexion->prepare("
                 SELECT 
+                apartment.apartment_id,
                 apartment.apartment_main_picture,
                 apartment.apartment_adress,
                 apartment.apartment_description,
@@ -422,9 +423,9 @@ class Apartment {
                         ($rentalStart >= $startDate && $rentalStart <= $endDate) ||
                         ($rentalEnd >= $startDate && $rentalEnd <= $endDate))) {
                         
-                             
-                        array_push($apartment_free, $apartment);
-                        
+                        if ($startDate < $rentalEnd){     
+                            array_push($apartment_free, $apartment);
+                        }
                     }
                 }
                 if ($apartment_free){
@@ -448,7 +449,8 @@ class Apartment {
 
         }else if (!$zipCode && $startDate && $endDate){
             $request = $connexion->prepare("
-                SELECT 
+                SELECT
+                apartment.apartment_id, 
                 apartment.apartment_main_picture,
                 apartment.apartment_adress,
                 apartment.apartment_description,
@@ -462,6 +464,7 @@ class Apartment {
             // 4. J'exécute ma requête
             $request->execute();
     
+            
             // 5. je renvoie les données au front en json
             $apartments = $request->fetchAll(PDO::FETCH_ASSOC);
     
@@ -469,25 +472,21 @@ class Apartment {
 
             if($apartments){
                 $apartment_free = array();
-                foreach($apartments as $apartment){
+                foreach ($apartments as $apartment) {
+                    $rentalStart = $apartment['apartment_rental_start'];
+                    $rentalEnd = $apartment['apartment_rental_end'];
+                
+                    if (!($startDate == $rentalStart || $endDate == $rentalEnd ||
+                        ($startDate >= $rentalStart && $startDate <= $rentalEnd) ||
+                        ($endDate >= $rentalStart && $endDate <= $rentalEnd) ||
+                        ($rentalStart >= $startDate && $rentalStart <= $endDate) ||
+                        ($rentalEnd >= $startDate && $rentalEnd <= $endDate))) {
+                        
+                        if ($startDate < $rentalEnd){
 
-                    if(
-                        // si la date de départ du client est = a une date de départ d'une location en cours
-                        $startDate == $apartment['apartment_rental_start']
-                        // si la date de retour d'un client est = a la date de départ d'une location
-                        || $endDate == $apartment['apartment_rental_end']
-                        // si la date de départ et de retour du client est égale a une date de départ et de fin d'une location
-                        || $startDate == $apartment['apartment_rental_start'] && $endDate == $apartment['apartment_rental_end']
-                        // si une date de départ d'un client est comprise entre une date de début et de fin de location
-                        || $startDate > $apartment['apartment_rental_start'] && $startDate < $apartment['apartment_rental_end']
-                        // si la date de retour d'un client est comprise entre une date de départ ou de fin d'une location
-                        || $endDate < $apartment['apartment_rental_end'] && $endDate > $apartment['apartment_rental_start']
-                        // si la date de debut d'une location est comprise entre une date de départ et de retour d'un client
-                        || $apartment['apartment_rental_start'] >  $startDate && $apartment['apartment_rental_start'] < $startDate
-                        // si la date de fin d'une location est comprise entre une date de départ et de retour d'un client
-                        || $apartment['apartment_rental_end'] < $endDate && $apartment['apartment_rental_end'] > $endDate
-                    ){}else{
-                        $apartment_free[] = $apartment;
+                            array_push($apartment_free, $apartment);
+                        }      
+                        
                     }
                 }
                 if ($apartment_free){
@@ -499,20 +498,14 @@ class Apartment {
                     header('Location: http://localhost:3000/pages/location/locations.php?message=' . urlencode($message));
                     exit;
                 }
-
             }else{
                 $connexion= null;
                 $message = "aucun appartement trouvé";
                 header('Location: http://localhost:3000/pages/location/locations.php?message=' . urlencode($message));
                 exit;
             }
-        }else{
-            $connexion= null;
-            $message = "si vous précisez une date de départ, il faut également préciser une date d'arrivée";
-            header('Location: http://localhost:3000/pages/location/locations.php?message=' . urlencode($message));
-            exit;
-        }
 
+        }
     }
 
 }
