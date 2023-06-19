@@ -41,13 +41,13 @@ class User_review {
             $user_id = $_SESSION['user_id'];
             $user_review_comment = $_POST['user_review_comment'];
 
-            // Create a new instance of the Database class
+            
             $db = new Database();
 
-            // Establish a connection to the database
+           
             $connection = $db->getConnection();
 
-            // Prepare the SQL statement to insert the relation
+            
             $sql = "INSERT INTO comment (user_review.user_review_comment, user_review.user_review_user_id, user_review.user_review_apartment_id) VALUES (:user_review_comment, :user_id, :apartment_id)";
             $statement = $connection->prepare($sql);
 
@@ -57,7 +57,7 @@ class User_review {
                 ':apartment_id' => $apartment_id
             ]);
 
-             // Close the database connection
+             
             $connection = null;
 
 
@@ -69,13 +69,13 @@ class User_review {
         $user_review_comment = $_POST['user_review_comment'];
 
 
-        // Create a new instance of the Database class
+        
         $db = new Database();
 
-        // Establish a connection to the database
+        
         $connection = $db->getConnection();
 
-        // véfifier que l'utilisateur est l'auteur du commentaire
+        
         $sql = "SELECT user_review.user_id
                 FROM user_review
                 WHERE user_reviw_user_id = :user_id
@@ -90,7 +90,7 @@ class User_review {
 
         if($user){
 
-            // Prepare the SQL statement to update the comment
+            
             $sql = "
                 UPDATE user_review 
                 SET user_review.user_review_comment = :user_review_comment 
@@ -103,7 +103,7 @@ class User_review {
                 ':user_review_id' => $user_id
             ]);
 
-            // Close the database connection
+            
             $connection = null;
 
             $message = "les modifications ont bien été prit en compte";
@@ -120,16 +120,16 @@ class User_review {
 
     function deleteOneComment($comment_id){
 
-        // l'id de l'utilisateur
+       
 
         $db = new Database();
 
         $user_id = $_SESSION['user_id']; 
 
-        // Establish a connection to the database
+        
         $connection = $db->getConnection();
 
-         // véfifier que l'utilisateur est l'auteur du commentaire
+        
          $sql = "
             SELECT user_review.user_id
                 FROM user_review
@@ -145,14 +145,14 @@ class User_review {
         $user = $statement->fetch(PDO::FETCH_ASSOC);
 
         if($user){
-            // Prepare the SQL statement to delete the comment
+            
             $sql = "DELETE FROM comment WHERE comment.id = :comment_id";
 
             $statement = $connection->prepare($sql);
 
             $statement->execute([':comment_id' => $comment_id]);
 
-            // Close the database connection
+            
             $connection = null;
 
             $message = "le commentaire ont bien été supprimer";
