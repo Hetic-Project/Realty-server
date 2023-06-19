@@ -359,4 +359,160 @@ class Apartment {
 
     }
 
+    function searchApartment($zipCode, $startDate, $endDate){
+
+        $db = new Database();
+
+        $connexion = $db->getconnection();
+
+        if($zipCode && !$startDate && !$endDate ){
+            $request = $connexion->prepare("
+                SELECT *
+                FROM apartment
+                WHERE apartment.apartment_zip_code = :zipCode
+            ");
+            // 4. J'exécute ma requête
+            $request->execute([':zipCode' => $zipCode]);
+    
+            // 5. je renvoie les données au front en json
+            $apartments = $request->fetchAll(PDO::FETCH_ASSOC);
+    
+            $connexion= null;
+            
+            if ($apartments) {
+                header('Content-Type: application/json');
+                echo json_encode($apartments);
+            } else {
+                $message = "aucun appartement trouvé";
+                header('Location: http://localhost:3000/pages/location/locations.php?message=' . urlencode($message));
+                exit;
+            }
+
+        }else if ($zipCode && $startDate && $endDate){
+            $request = $connexion->prepare("
+                SELECT 
+                apartment.apartment_main_picture,
+                apartment.apartment_adress,
+                apartment.apartment_description,
+                apartment.apartment_price,
+                apartment_rental.apartment_rental_start,
+                apartment_rental.apartment_rental_end
+                FROM apartment
+                JOIN apartment_rental
+                ON apartment_rental.apartment_rental_apartement_id = apartment.apartment_id
+                WHERE apartment.apartment_zip_code = :zipCode
+            ");
+            // 4. J'exécute ma requête
+            $request->execute([':zipCode' => $zipCode]);
+    
+            // 5. je renvoie les données au front en json
+            $apartments = $request->fetchAll(PDO::FETCH_ASSOC);
+    
+            $connexion= null;
+
+            if($apartments){
+                $apartment_free = array();
+                foreach ($apartments as $apartment) {
+                    $rentalStart = $apartment['apartment_rental_start'];
+                    $rentalEnd = $apartment['apartment_rental_end'];
+                
+                    if (!($startDate == $rentalStart || $endDate == $rentalEnd ||
+                        ($startDate >= $rentalStart && $startDate <= $rentalEnd) ||
+                        ($endDate >= $rentalStart && $endDate <= $rentalEnd) ||
+                        ($rentalStart >= $startDate && $rentalStart <= $endDate) ||
+                        ($rentalEnd >= $startDate && $rentalEnd <= $endDate))) {
+                        
+                             
+                        array_push($apartment_free, $apartment);
+                        
+                    }
+                }
+                if ($apartment_free){
+                    header('Content-Type: application/json');
+                    echo json_encode($apartment_free);
+                }else{
+                    $connexion= null;
+                    $message = "aucun appartement trouvé";
+                    header('Location: http://localhost:3000/pages/location/locations.php?message=' . urlencode($message));
+                    exit;
+                }
+
+
+
+            }else{
+                $connexion= null;
+                $message = "aucun appartement trouvé";
+                header('Location: http://localhost:3000/pages/location/locations.php?message=' . urlencode($message));
+                exit;
+            }
+
+        }else if (!$zipCode && $startDate && $endDate){
+            $request = $connexion->prepare("
+                SELECT 
+                apartment.apartment_main_picture,
+                apartment.apartment_adress,
+                apartment.apartment_description,
+                apartment.apartment_price,
+                apartment_rental.apartment_rental_start,
+                apartment_rental.apartment_rental_end
+                FROM apartment
+                JOIN apartment_rental
+                ON apartment_rental.apartment_rental_apartement_id = apartment.apartment_id
+            ");
+            // 4. J'exécute ma requête
+            $request->execute();
+    
+            // 5. je renvoie les données au front en json
+            $apartments = $request->fetchAll(PDO::FETCH_ASSOC);
+    
+            $connexion= null;
+
+            if($apartments){
+                $apartment_free = array();
+                foreach($apartments as $apartment){
+
+                    if(
+                        // si la date de départ du client est = a une date de départ d'une location en cours
+                        $startDate == $apartment['apartment_rental_start']
+                        // si la date de retour d'un client est = a la date de départ d'une location
+                        || $endDate == $apartment['apartment_rental_end']
+                        // si la date de départ et de retour du client est égale a une date de départ et de fin d'une location
+                        || $startDate == $apartment['apartment_rental_start'] && $endDate == $apartment['apartment_rental_end']
+                        // si une date de départ d'un client est comprise entre une date de début et de fin de location
+                        || $startDate > $apartment['apartment_rental_start'] && $startDate < $apartment['apartment_rental_end']
+                        // si la date de retour d'un client est comprise entre une date de départ ou de fin d'une location
+                        || $endDate < $apartment['apartment_rental_end'] && $endDate > $apartment['apartment_rental_start']
+                        // si la date de debut d'une location est comprise entre une date de départ et de retour d'un client
+                        || $apartment['apartment_rental_start'] >  $startDate && $apartment['apartment_rental_start'] < $startDate
+                        // si la date de fin d'une location est comprise entre une date de départ et de retour d'un client
+                        || $apartment['apartment_rental_end'] < $endDate && $apartment['apartment_rental_end'] > $endDate
+                    ){}else{
+                        $apartment_free[] = $apartment;
+                    }
+                }
+                if ($apartment_free){
+                    header('Content-Type: application/json');
+                    echo json_encode($apartment_free);
+                }else{
+                    $connexion= null;
+                    $message = "aucun appartement trouvé";
+                    header('Location: http://localhost:3000/pages/location/locations.php?message=' . urlencode($message));
+                    exit;
+                }
+
+            }else{
+                $connexion= null;
+                $message = "aucun appartement trouvé";
+                header('Location: http://localhost:3000/pages/location/locations.php?message=' . urlencode($message));
+                exit;
+            }
+        }else{
+            $connexion= null;
+            $message = "si vous précisez une date de départ, il faut également préciser une date d'arrivée";
+            header('Location: http://localhost:3000/pages/location/locations.php?message=' . urlencode($message));
+            exit;
+        }
+
+    }
+
 }
