@@ -58,7 +58,7 @@ class User {
 
         // 8. J'envoie une réponse
         $message = "le compte a bien été créé";
-        header('Location: http://localhost:3000/pages/userspace/login.php?message=' . urlencode($message));
+        header('Location: http://localhost:3000/pages/userspace/login.php?validate=' . urlencode($message));
         exit;
 
     }
@@ -96,7 +96,7 @@ class User {
                     $_SESSION['statut'] = $userInfos['user_statut'];
                     
                     $message = 'vous ête connecter';
-                    header('Location: http://localhost:3000/pages/userspace/profile.php');
+                    header('Location: http://localhost:3000/pages/userspace/profile.php?validate=' . urlencode($message));
                     exit;
 
                 }else {
@@ -109,7 +109,7 @@ class User {
                 // si le mail ou le mot de passe est incorect
                 header("HTTP/1.1 402");
                 $message = "le nom d'utilisateur ou le mot de passe est incorrect";
-                header('Location: http://localhost:3000/pages/userspace/login.php?message=' . urlencode($message));
+                header('Location: http://localhost:3000/pages/userspace/login.php?error=' . urlencode($message));
                 exit;
             }
         } else {
@@ -264,7 +264,7 @@ class User {
      
         $connexion = null;
         $message = "Vos informations personnelles ont bien été mise a jour";
-        header('Location: http://localhost:3000/pages/userspace/profile.php?message=' . urlencode($message));
+        header('Location: http://localhost:3000/pages/userspace/profile.php?validate=' . urlencode($message));
         exit;
     }
 

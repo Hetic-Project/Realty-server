@@ -133,8 +133,10 @@ CREATE TABLE `user_planning` (
 CREATE TABLE `apartment_employee` (
   apartment_employee_id INT PRIMARY KEY AUTO_INCREMENT,
   apartment_employee_apartment_id INT,
-  apartment_employee_user_id INT,
-  FOREIGN KEY (apartment_employee_user_id) REFERENCES user(user_id) ON DELETE CASCADE,
+  apartment_employee_menage_user_id INT,
+  apartment_employee_logistique_user_id INT,
+  FOREIGN KEY (apartment_employee_menage_user_id) REFERENCES user(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (apartment_employee_logistique_user_id) REFERENCES user(user_id) ON DELETE CASCADE,
   FOREIGN KEY (apartment_employee_apartment_id) REFERENCES apartment(apartment_id) ON DELETE CASCADE,
   apartment_employee_created_at timestamp DEFAULT CURRENT_TIMESTAMP,
   apartment_employee_updated_at timestamp
@@ -513,18 +515,20 @@ INSERT INTO `apartment_service` (
 
 INSERT INTO `apartment_employee`(
 `apartment_employee_apartment_id`,
-`apartment_employee_user_id`
+`apartment_employee_menage_user_id`,
+`apartment_employee_logistique_user_id`
+
 ) VALUES 
-(1, 5),
-(2, 5),
-(3, 5),
-(4, 5),
-(5, 5),
-(6, 6),
-(7, 6),
-(8, 6),
-(9, 6),
-(10, 6);
+(1, 5, 2),
+(2, 5, 2),
+(3, 5, 2),
+(4, 5, 2),
+(5, 5, 2),
+(6, 6, 7),
+(7, 6, 7),
+(8, 6, 7),
+(9, 6, 7),
+(10, 6, 7);
 
 INSERT INTO `apartment_check` (
     `apartment_check_apartment_id`,

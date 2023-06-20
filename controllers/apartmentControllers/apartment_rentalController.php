@@ -97,12 +97,12 @@ class Apartment_rental {
                             $connexion= null;
             
                             $message = "Votre location a été réserver avec succes";
-                            header('Location: http://localhost:3000/pages/location/locationdetails.php?id=' . $apartment_id . '&message=' . urlencode($message));
+                            header('Location: http://localhost:3000/pages/location/locationdetails.php?id=' . $apartment_id . '&validate=' . urlencode($message));
     
                             exit;  
                         }else{
                             $message = "Le bien ne peut etre réserver a cette date";
-                            header('Location: http://localhost:3000/pages/location/locationdetails.php?id=' . $apartment_id . '&message=' . urlencode($message));
+                            header('Location: http://localhost:3000/pages/location/locationdetails.php?id=' . $apartment_id . '&error=' . urlencode($message));
                             exit;  
                         }
                         
@@ -154,20 +154,20 @@ class Apartment_rental {
                         $connexion= null;
         
                         $message = "Votre location a été réserver avec succes";
-                        header('Location: http://localhost:3000/pages/location/locationdetails.php?id=' . $apartment_id . '&message=' . urlencode($message));
+                        header('Location: http://localhost:3000/pages/location/locationdetails.php?id=' . $apartment_id . '&validate=' . urlencode($message));
     
                         exit;  
                 }
     
             }else{
                 $message = "La date de départ doit etre plus grande ou égale a aujourd'huit et la date de rétour plus grande que la date d'arriver";
-                header('Location: http://localhost:3000/pages/location/locationdetails.php?id=' . $apartment_id . '&message=' . urlencode($message));
+                header('Location: http://localhost:3000/pages/location/locationdetails.php?id=' . $apartment_id . '&error=' . urlencode($message));
                 exit;
             }
         }else{
             ;
             $message = "Tous les champs son requis";
-                header('Location: http://localhost:3000/pages/location/locationdetails.php?id=' . $apartment_id . '&message=' . urlencode($message));
+                header('Location: http://localhost:3000/pages/location/locationdetails.php?id=' . $apartment_id . '&error=' . urlencode($message));
                 exit;
         }
 
