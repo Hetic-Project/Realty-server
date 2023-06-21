@@ -18,4 +18,5 @@ require_once './routes/userRoutes/user_invoiceRoute.php';
 require_once './routes/userRoutes/user_planningRoute.php';
 require_once './routes/userRoutes/user_problemRoute.php';
 require_once './routes/userRoutes/user_reviewRoute.php';
+require_once './routes/userRoutes/userCommentProgressRoute.php';
 require_once './routes/userRoutes/userRoute.php';

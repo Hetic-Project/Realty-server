@@ -280,6 +280,7 @@ class User {
         $sql = $connexion->prepare("
         SELECT user.*,
             JSON_ARRAYAGG(JSON_OBJECT(
+                'apartment-id', apartment.apartment_id,
                 'apartment-name', apartment.apartment_adress,
                 'apartment-zipCode', apartment.apartment_zip_code,
                 'apartment-city', apartment.apartment_city,

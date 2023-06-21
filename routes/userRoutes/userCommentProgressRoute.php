@@ -56,5 +56,16 @@ switch ($url) {
                 header('HTTP/1.1 405 Method Not Allowed');
                 header('Allow: GET');
             };
-            break;      
+            break;
+
+    case preg_match('@^/notification/getAll/(\d+)$@', $url, $matches) ? $url : '':
+            $controller = new Comment_progress();
+            if ($method == 'GET') {
+                $controller->getAllNotificationForOneUser($matches[1]);
+                $matched = true;
+            } else {
+                header('HTTP/1.1 405 Method Not Allowed');
+                header('Allow: GET');
+            };
+            break;        
 }
