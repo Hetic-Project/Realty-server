@@ -27,8 +27,6 @@ class Comment_progress {
                 :comment
             )
         ");
-        // joignant le nom, le prénom et la date du message qui se trouve dans la table 
-        // user
 
         $sql->execute([
             ':user_id' => $user_id,
@@ -36,6 +34,8 @@ class Comment_progress {
             ':comment' => $comment
         ]
         );
+
+        $commentProgress_id = $sql->lastInsertId();
 
         $logistic = $connexion->prepare("
             SELECT apartment_employee_logistique_user_id
@@ -49,8 +49,9 @@ class Comment_progress {
 
         $logistic_id = $idLogisticWant['apartment_employee_logistique_user_id'];
         $apartmentId = $apartment_id;
-        $message = 'Un nouveau commentaire a valider';
+        $message = 'Un nouveau commentaire est à valider';
         $link = 'url';
+        $comment_id = $commentProgress_id;
 
 
         $notification = $connexion->prepare("
@@ -58,12 +59,14 @@ class Comment_progress {
                 notification_user_logistic_id,
                 notification_apartment_id,
                 notification_message,
-                notification_link
+                notification_link,
+                notification_comment_id
             )VALUES(
                 :logistic_id,
                 :apartmentId,
                 :message,
-                :link
+                :link,
+                :comment_id
             )
         ");
 
@@ -71,7 +74,8 @@ class Comment_progress {
             ':logistic_id' => $logistic_id,
             ':apartmentId' => $apartmentId,
             ':message' => $message,
-            ':link' => $link
+            ':link' => $link,
+            ':comment_id' => $comment_id
         ]
         );
 
@@ -79,15 +83,35 @@ class Comment_progress {
 
     }
 
-    function getAllCommentProgressForOneApartment(){
+    function getAllCommentProgressForOneApartment($apartment_id){
+        $db = new Database();
+        $connexion = $db->getConnection();
+
+        $sql = $connexion->prepare(" 
+            SELECT *
+            FROM comment_progress
+            WHERE comment_progress_apartment_id = :apartment_id
+        ");
+
+        $sql->execute([':apartment_id' => $apartment_id]);
+
+        $commentsProgress = $sql->fetch(PDO::FETCH_ASSOC);
+
+        $connexion = null;
+
+        header('Content-Type: application/json');
+        echo json_encode($commentsProgress);
+    }
+
+    function commentProgressValidate(){
+        $db = new Database();
+        $connexion = $db->getConnection();
+
+        $notification_id = $_POST['notification_id'];
         
     }
 
-    function deleteOneComment(){
-        
-    }
-
-    function addCommentForOneApartment(){
+    function commentProgressDelete($comment_id){
         
     }
     
