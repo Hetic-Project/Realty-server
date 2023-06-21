@@ -71,7 +71,7 @@ class Apartment_service {
         $request = "UPDATE apartment_service SET ";
         
         $connexion = null;
-        $message = "Le service de l'apartment a bien été mis à jour";
+        $message = "Le service de l'apartment a bien été mise à jour";
         // header('Location: http://localhost:3000/messagePages/viewAllMessages.php=' . urlencode($message));
         exit;
     }

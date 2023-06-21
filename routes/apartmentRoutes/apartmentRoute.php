@@ -96,13 +96,26 @@ switch ($url) {
             break;
 
     case preg_match('@^/apartment/delete/apartment/(\d+)$@', $url, $matches) ? $url : '':
+        $controller = new Apartment();
+        if ($method == 'GET') {
+            $controller->deleteApartment($matches[1]);
+            $matched = true;
+        } else {
+            header('HTTP/1.1 405 Method Not Allowed');
+            header('Allow: GET');
+        };
+        break;
+        case preg_match('@^/apartment/search(?:/(\d{5}))?(?:/(\d{4}-\d{2}-\d{2}))?(?:/(\d{4}-\d{2}-\d{2}))?$@', $url, $matches) ? $url : '':
             $controller = new Apartment();
             if ($method == 'GET') {
-                $controller->deleteApartment($matches[1]);
+                $zipCode = isset($matches[1]) ? $matches[1] : null;
+                $startDate = isset($matches[2]) ? $matches[2] : null;
+                $endDate = isset($matches[3]) ? $matches[3] : null;
+                $controller->searchApartment($zipCode, $startDate, $endDate);
                 $matched = true;
             } else {
                 header('HTTP/1.1 405 Method Not Allowed');
                 header('Allow: GET');
-            };
+            }
             break;
 }

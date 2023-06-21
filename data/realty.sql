@@ -1,3 +1,4 @@
+-- SQLBook: Code
 -- sudo mysql -u root
 -- CREATE DATABASE realty;
 -- use realty
@@ -132,8 +133,10 @@ CREATE TABLE `user_planning` (
 CREATE TABLE `apartment_employee` (
   apartment_employee_id INT PRIMARY KEY AUTO_INCREMENT,
   apartment_employee_apartment_id INT,
-  apartment_employee_user_id INT,
-  FOREIGN KEY (apartment_employee_user_id) REFERENCES user(user_id) ON DELETE CASCADE,
+  apartment_employee_menage_user_id INT,
+  apartment_employee_logistique_user_id INT,
+  FOREIGN KEY (apartment_employee_menage_user_id) REFERENCES user(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (apartment_employee_logistique_user_id) REFERENCES user(user_id) ON DELETE CASCADE,
   FOREIGN KEY (apartment_employee_apartment_id) REFERENCES apartment(apartment_id) ON DELETE CASCADE,
   apartment_employee_created_at timestamp DEFAULT CURRENT_TIMESTAMP,
   apartment_employee_updated_at timestamp
@@ -358,7 +361,7 @@ INSERT INTO `user` (
     'Kevin',
     'Bernard',
     '2004/07/10',
-    '1234',
+    '$2a$12$9LQALo1pqUqZeHK4t0vLpOI5m.BZV9hxW2GfrtoI/lSa68edXB1Mi',
     '06-00-00-00-00',
     '5 rue du mancho',
     '42000',
@@ -370,7 +373,7 @@ INSERT INTO `user` (
     'William',
     'Vandal',
     '1990/09/29',
-    '1234',
+    '$2a$12$9LQALo1pqUqZeHK4t0vLpOI5m.BZV9hxW2GfrtoI/lSa68edXB1Mi',
     '06-00-00-00-00',
     '5 rue du mancho',
     '42000',
@@ -382,7 +385,7 @@ INSERT INTO `user` (
     'Mohamed',
     'Yaich',
     '2001/12/07',
-    '1234',
+    '$2a$12$9LQALo1pqUqZeHK4t0vLpOI5m.BZV9hxW2GfrtoI/lSa68edXB1Mi',
     '06-00-00-00-00',
     '5 rue du mancho',
     '42000',
@@ -394,48 +397,48 @@ INSERT INTO `user` (
     'Lucas',
     'Yalman',
     '2004/08/20',
-    '1234',
+    '$2a$12$9LQALo1pqUqZeHK4t0vLpOI5m.BZV9hxW2GfrtoI/lSa68edXB1Mi',
     '06-00-00-00-00',
     '5 rue du mancho',
     '42000',
     'saint étienne',
-    'kevin.bernard@gmail.com',
+    'lucas.yalman@gmail.com',
     'Admin'
 ),
 (
     'Tom',
     'Cardonnel',
     '2003/06/18',
-    '1234',
+    '$2a$12$9LQALo1pqUqZeHK4t0vLpOI5m.BZV9hxW2GfrtoI/lSa68edXB1Mi',
     '06-00-00-00-00',
     '5 rue du mancho',
     '42000',
     'saint étienne',
-    'kevin.bernard@gmail.com',
+    'tom.cardonnel@gmail.com',
     'Menage'
 ),
 (
     'Rubens',
-    'Cardonnel',
+    'Bonnin',
     '2004/06/21',
-    '1234',
+    '$2a$12$9LQALo1pqUqZeHK4t0vLpOI5m.BZV9hxW2GfrtoI/lSa68edXB1Mi',
     '06-00-00-00-00',
     '5 rue du mancho',
     '42000',
     'saint étienne',
-    'kevin.bernard@gmail.com',
+    'Rubens.Bonnin@gmail.com',
     'Menage'
 ),
 (
     'Alexendre',
     'Cardonnel',
     '2004/06/21',
-    '1234',
+    '$2a$12$9LQALo1pqUqZeHK4t0vLpOI5m.BZV9hxW2GfrtoI/lSa68edXB1Mi',
     '06-00-00-00-00',
     '5 rue du mancho',
     '42000',
     'saint étienne',
-    'kevin.bernard@gmail.com',
+    'alexendre.cardonnel@gmail.com',
     'Logistique'
 );
 
@@ -450,6 +453,7 @@ INSERT INTO `apartment_rental` (
 
 ) VALUES 
 (1, 2, '2023/06/01', '2023/06/10'),
+(1, 2, '2023/06/15', '2023/06/26'),
 (3, 1, '2023/07/10', '2023/07/17'),
 (1, 3, '2023/07/20', '2023/07/27'),
 (3, 4, '2023/08/01', '2023/08/07'),
@@ -534,18 +538,20 @@ INSERT INTO `apartment_service` (
 
 INSERT INTO `apartment_employee`(
 `apartment_employee_apartment_id`,
-`apartment_employee_user_id`
+`apartment_employee_menage_user_id`,
+`apartment_employee_logistique_user_id`
+
 ) VALUES 
-(1, 5),
-(2, 5),
-(3, 5),
-(4, 5),
-(5, 5),
-(6, 6),
-(7, 6),
-(8, 6),
-(9, 6),
-(10, 6);
+(1, 5, 2),
+(2, 5, 2),
+(3, 5, 2),
+(4, 5, 2),
+(5, 5, 2),
+(6, 6, 7),
+(7, 6, 7),
+(8, 6, 7),
+(9, 6, 7),
+(10, 6, 7);
 
 INSERT INTO `apartment_check` (
     `apartment_check_apartment_id`,
@@ -595,7 +601,10 @@ INSERT INTO `user_problem` (
 
 ) VALUES 
 (1, 2, 'les rideaux sont déchirer', '2023/07/02'),
-(3, 1, 'il n''y a plus d''eau chaude', '2023/07/11');
+(2, 2, 'un technicien viendra les remplacer ce jour', '2023/07/02'),
+(3, 1, 'il n''y a plus d''eau chaude', '2023/07/11'),
+(7, 1, 'un technicien viendra les remplacer ce jour', '2023/07/02');
+
 
 INSERT INTO `user_invoice` (
     `user_invoice_user_id`,
@@ -605,11 +614,11 @@ INSERT INTO `user_invoice` (
 
 ) VALUES 
 (1, 2, '2023/06/06', 5400),
-(2, 1, '2023/06/05', 6000),
+(3, 1, '2023/06/05', 6000),
 (1, 3, '2023/06/02', 3000),
-(2, 4, '2023/06/01', 9000),
+(3, 4, '2023/06/01', 9000),
 (1, 5, '2023/06/03', 7200),
-(2, 6, '2023/06/04', 12000);
+(3, 6, '2023/06/04', 12000);
 
 INSERT INTO `user_planning` (
 `user_planning_user_id`,

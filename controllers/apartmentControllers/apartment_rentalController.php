@@ -16,54 +16,162 @@ class Apartment_rental {
         $apartment_id = $_POST["apartment_id"];
         $start_date = $_POST["start_date"];
         $end_date = $_POST["end_date"];
+        $amount = $_POST["amount"];
 
-        $request = $conexion->prepare("
-            SELECT *
-            FROM apartment_rental
-            WHERE apartment_rental.apartment_rental_apartement_id = :apartment_id
-        ");
-        $request->execute([":apartment_id" => $apartment_id]);
+        if( $user_id && $apartment_id && $start_date && $end_date && $amount){
+            $current_date = date('Y-m-d');
+            if($start_date >= $current_date && $end_date > $start_date){
 
-        $apartment_rental = $request->fetchAll(PDO::FETCH_ASSOC);
-
-        if($apartment_rental){
-            if(
-                // si la date de départ du client est = a une date de départ d'une location en cours
-                $start_date == $apartment_rental['apartment_rental_start']
-                // si la date de retour d'un client est = a la date de départ d'une location
-                || $end_date == $apartment_rental['apartment_rental_end']
-                // si la date de départ et de retour du client est égale a une date de départ et de fin d'une location
-                || $start_date == $apartment_rental['apartment_rental_start'] && $end_date == $apartment_rental['apartment_rental_end']
-                // si une date de départ d'un client est comprise entre une date de début et de fin de location
-                || $start_date > $apartment_rental['apartment_rental_start'] && $start_date < $apartment_rental['apartment_rental_end']
-                // si la date de retour d'un client est comprise entre une date de départ ou de fin d'une location
-                || $end_date < $apartment_rental['apartment_rental_end'] && $end_date > $apartment_rental['apartment_rental_start']
-                // si la date de debut d'une location est comprise entre une date de départ et de retour d'un client
-                || $apartment_rental['apartment_rental_start'] >  $start_date && $apartment_rental['apartment_rental_start'] < $start_date
-                // si la date de fin d'une location est comprise entre une date de départ et de retour d'un client
-                || $apartment_rental['apartment_rental_end'] < $end_date && $apartment_rental['apartment_rental_end'] > $end_date
-            ){
-                $connexion= null;
-                $message = "la période choisie est indisponible";
-                header('Location: http://localhost:3000/pages/location/locationdetails.php?message=' . urlencode($message));
-                exit;
-
-            }else{
-                // sinon 
-                $request = $conexion->prepare("
-
+                $request = $connexion->prepare("
+                    SELECT *
+                    FROM apartment_rental
+                    WHERE apartment_rental.apartment_rental_apartement_id = :apartment_id
                 ");
-                $request->execute();
-
-                $connexion= null;
-                $message = "Votre location a été réserver avec succes";
-                header('Location: http://localhost:3000/pages/location/locationdetails.php?message=' . urlencode($message));
+                $request->execute([":apartment_id" => $apartment_id]);
+        
+                $apartment_rental = $request->fetchAll(PDO::FETCH_ASSOC);
+        
+                if($apartment_rental){
+    
+                    $available = true;
+                    foreach($apartment_rental as $rental){
+    
+                        $rentalStart = $rental['apartment_rental_start'];
+                        $rentalEnd = $rental['apartment_rental_end'];
+                        $startDate = $start_date;
+                        $endDate = $end_date;
+            
+                        if (($startDate == $rentalStart || $endDate == $rentalEnd ||
+                            ($startDate >= $rentalStart && $startDate <= $rentalEnd) ||
+                            ($endDate >= $rentalStart && $endDate <= $rentalEnd) ||
+                            ($rentalStart >= $startDate && $rentalStart <= $endDate) ||
+                            ($rentalEnd >= $startDate && $rentalEnd <= $endDate))) {
+                                
+                                $available = false;
+                                
+                            }
+                        if($available){
+    
+                            $request = $connexion->prepare("
+            
+                                INSERT INTO apartment_rental(
+                                    apartment_rental_user_id,
+                                    apartment_rental_apartement_id,
+                                    apartment_rental_start,
+                                    apartment_rental_end
+                                )VALUES(
+                                    :user_id,
+                                    :apartment_id,
+                                    :start_date,
+                                    :end_date
+                                )
+            
+                            ");
+                            $request->execute([
+                                ':user_id' => $user_id,
+                                ':apartment_id' => $apartment_id,
+                                ':start_date' => $start_date,
+                                ':end_date' => $end_date
+                            ]);
+            
+                            $bill = $connexion->prepare("
+            
+                                INSERT INTO user_invoice(
+                                    user_invoice_user_id,
+                                    user_invoice_apartment_id,
+                                    user_invoice_amount
+                                )VALUES(
+                                    :user_id,
+                                    :apartment_id,
+                                    :amount
+                                )
+            
+                            ");
+            
+                            $bill->execute([
+                                ':user_id' => $user_id,
+                                ':apartment_id' => $apartment_id,
+                                ':amount' => $amount  
+                            ]);
+            
+                            $connexion= null;
+            
+                            $message = "Votre location a été réserver avec succes";
+                            header('Location: http://localhost:3000/pages/location/locationdetails.php?id=' . $apartment_id . '&validate=' . urlencode($message));
+    
+                            exit;  
+                        }else{
+                            $message = "Le bien ne peut etre réserver a cette date";
+                            header('Location: http://localhost:3000/pages/location/locationdetails.php?id=' . $apartment_id . '&error=' . urlencode($message));
+                            exit;  
+                        }
+                        
+                    }
+        
+                }else{
+                    $request = $connexion->prepare("
+        
+                            INSERT INTO apartment_rental(
+                                apartment_rental_user_id,
+                                apartment_rental_apartement_id,
+                                apartment_rental_start,
+                                apartment_rental_end
+                            )VALUES(
+                                :user_id,
+                                :apartment_id,
+                                :start_date,
+                                :end_date
+                            )
+        
+                        ");
+                        $request->execute([
+                            ':user_id' => $user_id,
+                            ':apartment_id' => $apartment_id,
+                            ':start_date' => $start_date,
+                            ':end_date' => $end_date
+                        ]);
+        
+                        $bill = $connexion->prepare("
+        
+                            INSERT INTO user_invoice(
+                                user_invoice_user_id,
+                                user_invoice_apartment_id,
+                                user_invoice_amount
+                            )VALUES(
+                                :user_id,
+                                :apartment_id,
+                                :amount
+                            )
+        
+                        ");
+        
+                        $bill->execute([
+                            ':user_id' => $user_id,
+                            ':apartment_id' => $apartment_id,
+                            ':amount' => $amount  
+                        ]);
+        
+                        $connexion= null;
+        
+                        $message = "Votre location a été réserver avec succes";
+                        header('Location: http://localhost:3000/pages/location/locationdetails.php?id=' . $apartment_id . '&validate=' . urlencode($message));
+    
+                        exit;  
+                }
+    
+            }else{
+                $message = "La date de départ doit etre plus grande ou égale a aujourd'huit et la date de rétour plus grande que la date d'arriver";
+                header('Location: http://localhost:3000/pages/location/locationdetails.php?id=' . $apartment_id . '&error=' . urlencode($message));
                 exit;
             }
-
         }else{
-            // si il n'y a pas de résultat insérer les donnée
+            ;
+            $message = "Tous les champs son requis";
+                header('Location: http://localhost:3000/pages/location/locationdetails.php?id=' . $apartment_id . '&error=' . urlencode($message));
+                exit;
         }
+
+
     }
 
     function getOneApartmentRental($rental_id){
@@ -117,6 +225,37 @@ class Apartment_rental {
 
         header('Content-Type: application/json');
         echo json_encode($apartmentsRentals);
+
+        
+    }
+
+    function getApartmentRentalInProgress($user_id){
+        $db = new Database();
+
+        $connexion = $db->getconnection();
+        
+        $request = $connexion->prepare("
+            SELECT
+            apartment.apartment_id,  
+            apartment.apartment_adress,
+            apartment.apartment_zip_code,
+            apartment.apartment_city
+            FROM apartment_rental
+            JOIN apartment ON apartment_rental.apartment_rental_apartement_id = apartment_id
+            JOIN user ON apartment_rental.apartment_rental_user_id = user.user_id
+            WHERE apartment_rental.apartment_rental_user_id = :user_id
+            AND CURRENT_DATE BETWEEN apartment_rental.apartment_rental_start AND apartment_rental.apartment_rental_end;
+            
+        ");
+
+        $request->execute([':user_id' => $user_id]);
+
+        $apartmentsRental = $request->fetch(PDO::FETCH_ASSOC);
+
+        $connexion = null;
+
+        header('Content-Type: application/json');
+        echo json_encode($apartmentsRental);
 
         
     }

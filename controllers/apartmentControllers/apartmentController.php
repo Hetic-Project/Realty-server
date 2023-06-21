@@ -359,4 +359,153 @@ class Apartment {
 
     }
 
+    function searchApartment($zipCode, $startDate, $endDate){
+
+        $db = new Database();
+
+        $connexion = $db->getconnection();
+
+        if($zipCode && !$startDate && !$endDate ){
+            $request = $connexion->prepare("
+                SELECT *
+                FROM apartment
+                WHERE apartment.apartment_zip_code = :zipCode
+            ");
+            // 4. J'exécute ma requête
+            $request->execute([':zipCode' => $zipCode]);
+    
+            // 5. je renvoie les données au front en json
+            $apartments = $request->fetchAll(PDO::FETCH_ASSOC);
+    
+            $connexion= null;
+            
+            if ($apartments) {
+                header('Content-Type: application/json');
+                echo json_encode($apartments);
+            } else {
+                $message = "aucun appartement trouvé";
+                header('Location: http://localhost:3000/pages/location/locations.php?message=' . urlencode($message));
+                exit;
+            }
+
+        }else if ($zipCode && $startDate && $endDate){
+            $request = $connexion->prepare("
+                SELECT 
+                apartment.apartment_id,
+                apartment.apartment_main_picture,
+                apartment.apartment_adress,
+                apartment.apartment_description,
+                apartment.apartment_price,
+                apartment_rental.apartment_rental_start,
+                apartment_rental.apartment_rental_end
+                FROM apartment
+                JOIN apartment_rental
+                ON apartment_rental.apartment_rental_apartement_id = apartment.apartment_id
+                WHERE apartment.apartment_zip_code = :zipCode
+            ");
+            // 4. J'exécute ma requête
+            $request->execute([':zipCode' => $zipCode]);
+    
+            // 5. je renvoie les données au front en json
+            $apartments = $request->fetchAll(PDO::FETCH_ASSOC);
+    
+            $connexion= null;
+
+            if($apartments){
+                $apartment_free = array();
+                foreach ($apartments as $apartment) {
+                    $rentalStart = $apartment['apartment_rental_start'];
+                    $rentalEnd = $apartment['apartment_rental_end'];
+                
+                    if (!($startDate == $rentalStart || $endDate == $rentalEnd ||
+                        ($startDate >= $rentalStart && $startDate <= $rentalEnd) ||
+                        ($endDate >= $rentalStart && $endDate <= $rentalEnd) ||
+                        ($rentalStart >= $startDate && $rentalStart <= $endDate) ||
+                        ($rentalEnd >= $startDate && $rentalEnd <= $endDate))) {
+                        
+                        if ($startDate < $rentalEnd){     
+                            array_push($apartment_free, $apartment);
+                        }
+                    }
+                }
+                if ($apartment_free){
+                    header('Content-Type: application/json');
+                    echo json_encode($apartment_free);
+                }else{
+                    $connexion= null;
+                    $message = "aucun appartement trouvé";
+                    header('Location: http://localhost:3000/pages/location/locations.php?message=' . urlencode($message));
+                    exit;
+                }
+
+
+
+            }else{
+                $connexion= null;
+                $message = "aucun appartement trouvé";
+                header('Location: http://localhost:3000/pages/location/locations.php?message=' . urlencode($message));
+                exit;
+            }
+
+        }else if (!$zipCode && $startDate && $endDate){
+            $request = $connexion->prepare("
+                SELECT
+                apartment.apartment_id, 
+                apartment.apartment_main_picture,
+                apartment.apartment_adress,
+                apartment.apartment_description,
+                apartment.apartment_price,
+                apartment_rental.apartment_rental_start,
+                apartment_rental.apartment_rental_end
+                FROM apartment
+                JOIN apartment_rental
+                ON apartment_rental.apartment_rental_apartement_id = apartment.apartment_id
+            ");
+            // 4. J'exécute ma requête
+            $request->execute();
+    
+            
+            // 5. je renvoie les données au front en json
+            $apartments = $request->fetchAll(PDO::FETCH_ASSOC);
+    
+            $connexion= null;
+
+            if($apartments){
+                $apartment_free = array();
+                foreach ($apartments as $apartment) {
+                    $rentalStart = $apartment['apartment_rental_start'];
+                    $rentalEnd = $apartment['apartment_rental_end'];
+                
+                    if (!($startDate == $rentalStart || $endDate == $rentalEnd ||
+                        ($startDate >= $rentalStart && $startDate <= $rentalEnd) ||
+                        ($endDate >= $rentalStart && $endDate <= $rentalEnd) ||
+                        ($rentalStart >= $startDate && $rentalStart <= $endDate) ||
+                        ($rentalEnd >= $startDate && $rentalEnd <= $endDate))) {
+                        
+                        if ($startDate < $rentalEnd){
+
+                            array_push($apartment_free, $apartment);
+                        }      
+                        
+                    }
+                }
+                if ($apartment_free){
+                    header('Content-Type: application/json');
+                    echo json_encode($apartment_free);
+                }else{
+                    $connexion= null;
+                    $message = "aucun appartement trouvé";
+                    header('Location: http://localhost:3000/pages/location/locations.php?message=' . urlencode($message));
+                    exit;
+                }
+            }else{
+                $connexion= null;
+                $message = "aucun appartement trouvé";
+                header('Location: http://localhost:3000/pages/location/locations.php?message=' . urlencode($message));
+                exit;
+            }
+
+        }
+    }
+
 }

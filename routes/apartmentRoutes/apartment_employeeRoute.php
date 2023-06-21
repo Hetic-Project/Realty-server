@@ -14,10 +14,10 @@ $matched = false;
 switch ($url) {
     // Route utilisateur de l'API
     // preg_mag est utiliser pour les routes en GET qui on un paramettre dans l'url
-    case preg_match('@^/user/get/oneEmployee/(\d+)$@', $url, $matches) ? $url : '':
+    case preg_match('@^/user/get/apartmentEmployee/(\d+)/([\w-]+)$@', $url, $matches) ? $url : '':
         $controller = new Apartment_employee();
         if ($method == 'GET') {
-            $controller->getOneEmployeeForOneApartment($matches[1]);
+            $controller->getAllApartmentForOneEmployee($matches[1], $matches[2]);
             $matched = true;
         } else {
             header('HTTP/1.1 405 Method Not Allowed');

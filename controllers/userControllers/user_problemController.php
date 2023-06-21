@@ -17,38 +17,36 @@ class user_problem {
 
         // 3. Récupérer les champs du formulaire
         $user_id = $_POST['user_id'];
-        $user_problem_description = $_POST['user_problem_description'];
-        $user_problem_date = $_POST['user_problem_date'];
+        $apartment_id = $_POST['apartment_id'];
+        $problem_description = $_POST['problem_description'];
 
         // 4. Préparer la requête pour insérer le problème d'utilisateur dans la base de données
         $request = $connexion->prepare("
             INSERT INTO user_problem (
-                user_id,
-                user_problem_description,
-                user_problem_date
+                user_problem_user_id,
+                user_problem_apartment_id,
+                user_problem_description
             ) VALUES (
                 :user_id,
-                :user_problem_description,
-                :user_problem_date
+                :apartment_id,
+                :problem_description
             )
         ");
 
         // 5. Exécuter la requête
         $request->execute([
             ":user_id" => $user_id,
-            ":user_problem_description" => $user_problem_description,
-            ":user_problem_date" => $user_problem_date
+            ":apartment_id" => $apartment_id,
+            ":problem_description" => $problem_description
         ]);
 
-        $userInfos = $request->fetch(PDO::FETCH_ASSOC);
-
-        // 6. Fermer la connexion à la base de données
+        // 7. Fermer la connexion à la base de données
         $connexion = null;
 
-        // 7. Envoyer une réponse
-        header('Content-Type: application/json');
-        echo json_encode($userInfos);
+        header('Location: http://localhost:3000/pages/userspace/message.php');
+        exit;
     }
+
     
     function getOneUserProblem($problemId, $loggedInUserId){
         // 1. Utilisation de l'objet Database
@@ -58,7 +56,7 @@ class user_problem {
         $connexion = $db->getconnection();
     
         // 3. Préparation de la requête pour récupérer un problème utilisateur spécifié
-        $request = $connexion->prepare("SELECT * FROM user_problem WHERE user_problem_id = :problemId");
+        $request = $connexion->prepare("SELECT * FROM user_problem WHERE problem_id = :problemId");
     
         // 4. Exécution de la requête en utilisant le problème ID spécifié
         $request->execute([":problemId" => $problemId]);
@@ -84,8 +82,9 @@ class user_problem {
             echo json_encode(['error' => 'Le problème spécifié n\'existe pas.']);
         }
     }
+    
 
-    function getAllUserProblem($loggedInUserId){
+    function getAllUserProblem($apartment_id, $user_id){
         // 1. Utilisation de l'objet Database
         $db = new Database();
     
@@ -94,40 +93,52 @@ class user_problem {
     
         // 3. Préparation de la requête pour récupérer tous les problèmes utilisateur
         $request = $connexion->prepare("
-        SELECT *
-        FROM user_problem");
+            SELECT 
+            user.user_id,
+            user.user_firstname, 
+            user.user_lastname,
+            user.user_statut, 
+            user_problem.user_problem_description, 
+            user_problem.user_problem_created_at
+            FROM user_problem
+            JOIN user
+            ON user_problem.user_problem_user_id = user.user_id
+            WHERE user_problem.user_problem_apartment_id = :apartment_id
+            AND user_problem_user_id = :user_id
+            OR user_statut = 'Logistique' AND user_problem.user_problem_apartment_id = :apartment_id
+        ");
     
         // 4. Exécution de la requête
-        $request->execute();
+        $request->execute([
+            ':apartment_id' => $apartment_id,
+            ':user_id' => $user_id
+        
+        ]);
     
         // 5. Récupération des données des problèmes utilisateur
         $userProblems = $request->fetchAll(PDO::FETCH_ASSOC);
     
-        // 6. Vérification de l'existence des problèmes
-        if ($userProblems) {
-            // Tableau pour stocker les problèmes autorisés
-            $authorizedProblems = [];
-    
-            // Parcours des problèmes
-            foreach ($userProblems as $problem) {
-                // Vérification si l'utilisateur connecté est autorisé à accéder au problème
-                if ($problem['user_id'] == $loggedInUserId) {
-                    $authorizedProblems[] = $problem;
-                }
-            }
-    
-            // Renvoyer les problèmes autorisés au format JSON
-            header('Content-Type: application/json');
-            echo json_encode($authorizedProblems);
-        } else {
-            // Aucun problème trouvé, renvoyer un message d'erreur
-            header('Content-Type: application/json');
-            echo json_encode(['error' => 'Aucun problème utilisateur trouvé.']);
-        }
+        // Renvoyer les problèmes autorisés au format JSON
+        header('Content-Type: application/json');
+        echo json_encode($userProblems);
+        
     }
     
-
-    function updateUserProblemStatut($problemId, $newStatus){
+    
+    function updateUserProblemStatut(){
+        // Vérification si la méthode de la requête est bien POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('HTTP/1.1 405 Method Not Allowed');
+            echo json_encode(['error' => 'Méthode non autorisée.']);
+            return;
+        }
+    
+        // Récupération des données du formulaire
+        $problemId = $_POST['problemId'];
+        $newStatus = $_POST['newStatus'];
+    
+        // Validation des données (ajoutez vos propres validations ici)
+    
         // 1. Utilisation de l'objet Database
         $db = new Database();
     
@@ -135,11 +146,7 @@ class user_problem {
         $connexion = $db->getconnection();
     
         // 3. Préparation de la requête pour mettre à jour le statut du problème utilisateur
-        $request = $connexion->prepare("
-        UPDATE user_problem
-        SET 
-        user_problem_statut = :newStatus 
-        WHERE user_problem_id = :problemId");
+        $request = $connexion->prepare("UPDATE user_problem SET problem_statut = :newStatus WHERE problem_id = :problemId");
     
         // 4. Exécution de la requête avec les paramètres
         $request->execute([
@@ -149,7 +156,7 @@ class user_problem {
     
         // 5. Vérification si la mise à jour a été effectuée
         if ($request->rowCount() > 0) {
-            // Mise à jour réussie, renvoyer un message de succès
+            // Mise à jour réussie, renvoyer une réponse JSON avec un message de succès
             header('Content-Type: application/json');
             echo json_encode(['success' => 'Statut du problème utilisateur mis à jour avec succès.']);
         } else {
@@ -158,6 +165,5 @@ class user_problem {
             echo json_encode(['error' => 'Impossible de mettre à jour le statut du problème utilisateur. Vérifiez les informations fournies.']);
         }
     }
-    
     
 }

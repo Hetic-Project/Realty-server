@@ -16,12 +16,12 @@ switch ($url) {
     // preg_mag est utiliser pour les routes en GET qui on un paramettre dans l'url
     case '/apartment/add/apartmentRental':
         $controller = new Apartment_rental();
-        if ($method == 'GET') {
+        if ($method == 'POST') {
             $controller->addApartmentRental();
             $matched = true;
         } else {
             header('HTTP/1.1 405 Method Not Allowed');
-            header('Allow: GET');
+            header('Allow: POST');
         };
         break;
         
@@ -44,6 +44,18 @@ switch ($url) {
         $controller = new Apartment_rental();
         if ($method == 'GET') {
             $controller->getAllApartmentRental($matches[1]);
+            $matched = true;
+        } else {
+            header('HTTP/1.1 405 Method Not Allowed');
+            header('Allow: GET');
+        };
+        break;
+
+    case preg_match('@^/apartment/get/rentalInProgress/(\d+)$@', $url, $matches) ? $url : '':
+
+        $controller = new Apartment_rental();
+        if ($method == 'GET') {
+            $controller->getApartmentRentalInProgress($matches[1]);
             $matched = true;
         } else {
             header('HTTP/1.1 405 Method Not Allowed');

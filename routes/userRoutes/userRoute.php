@@ -68,7 +68,7 @@ switch ($url) {
             };
              break;
 
-    case '/user/updateAccount/':
+    case '/user/updateAccount':
             $controller = new User();
             if ($method == 'POST') {
                 $controller->updateAccountForOneUser();
@@ -83,6 +83,16 @@ switch ($url) {
             $controller = new User();
             if ($method == 'GET') {
                 $controller->getAccountForOneUser($matches[1]);
+                $matched = true;
+            } else {
+                header('HTTP/1.1 405 Method Not Allowed');
+                header('Allow: GET');
+            };
+            break;
+    case '/user/logout':
+            $controller = new User();
+            if ($method == 'GET') {
+                $controller->logoutAccount();
                 $matched = true;
             } else {
                 header('HTTP/1.1 405 Method Not Allowed');
