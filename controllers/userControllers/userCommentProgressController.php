@@ -107,6 +107,12 @@ class Comment_progress {
         $db = new Database();
         $connexion = $db->getConnection();
 
+        $sql = $connexion->prepare(" 
+            SELECT notification_id
+            FROM notification
+            WHERE 
+        ");
+
         $notification_id = $_POST['notification_id'];
         
     }

@@ -270,7 +270,7 @@ class Apartment {
         header("Access-Control-Allow-Headers: Content-Type");
         header("Access-Control-Allow-Credentials: true");
 
-        header('Content-Type: application/json');
+        header('Content-Type: application/json; charset=utf-8' );
         echo json_encode($apartmentInfos);
     }
 
@@ -332,7 +332,7 @@ class Apartment {
         $connexion= null;
         
         // je renvoie au front les données au format json
-        header('Content-Type: application/json');
+        header('Content-Type: application/json; charset=utf-8');
         echo json_encode($apartmentInfos);
 
 
@@ -380,7 +380,7 @@ class Apartment {
             $connexion= null;
             
             if ($apartments) {
-                header('Content-Type: application/json');
+                header('Content-Type: application/json; charset=utf-8');
                 echo json_encode($apartments);
             } else {
                 $message = "aucun appartement trouvé";
@@ -429,7 +429,7 @@ class Apartment {
                     }
                 }
                 if ($apartment_free){
-                    header('Content-Type: application/json');
+                    header('Content-Type: application/json; charset=utf-8');
                     echo json_encode($apartment_free);
                 }else{
                     $connexion= null;
@@ -490,7 +490,7 @@ class Apartment {
                     }
                 }
                 if ($apartment_free){
-                    header('Content-Type: application/json');
+                    header('Content-Type: application/json; charset=utf-8');
                     echo json_encode($apartment_free);
                 }else{
                     $connexion= null;
