@@ -20,7 +20,7 @@ class Database {
         //Tentative de connection 
         try {
             // Objet natif à PhP pour se connecter à la BDD 
-            $connection = new PDO("mysql:host=" . $host . ";port=" . $port . ";dbname=" . $dbname, $username, $password);
+            $connection = new PDO("mysql:host=" . $host . ";port=" . $port . ";dbname=" . $dbname . ";charset=utf8", $username, $password);
             // Ajouter des attributs à l'objet PDO ( méthode native à PDO)
             $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }
