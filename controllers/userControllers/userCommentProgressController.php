@@ -103,22 +103,76 @@ class Comment_progress {
         echo json_encode($commentsProgress);
     }
 
-    function commentProgressValidate(){
+    function commentProgressValidate($comment_id){
         $db = new Database();
         $connexion = $db->getConnection();
 
-        $sql = $connexion->prepare(" 
-            SELECT notification_id
-            FROM notification
-            WHERE 
+        // $sql = $connexion->prepare(" 
+        //     SELECT notification_id
+        //     FROM notification
+        //     WHERE notification_comment_id = :comment_id
+        // ");
+
+        // $sql->execute([':comment_id' => $comment_id]);
+
+        // $idNotification = $sql->fetch(PDO::FETCH_ASSOC);
+
+        $commentWant = $connexion->prepare(" 
+            SELECT 
+            comment_progress_user_id,
+            comment_progress_apartment_id,
+            comment_progress_comment
+            FROM comment_progress
+            WHERE comment_progress_id = :comment_id
         ");
 
-        $notification_id = $_POST['notification_id'];
+        $commentWant->execute([':comment_id' => $comment_id]);
+        $comment = $sql->fetch(PDO::FETCH_ASSOC);
+
+        // $notification_id = $idNotification['notification_id'];
+        $user_id = $comment['comment_progress_user_id'];
+        $apartment_id = $comment['comment_progress_apartment_id'];
+        $comment = $comment['comment_progress_comment'];
+
+        $review = $connexion->prepare(" 
+            INSERT INTO user_review (
+                user_review_user_id,
+                user_review_apartment_id,
+                user_review_comment
+            )VALUES (
+                :user_id,
+                :apartment_id,
+                :comment
+            )
+        ");
+
+        $review->execute([
+            ':user_id' => $user_id,
+            ':apartment_id' => $apartment_id,
+            ':comment' => $comment
+        ]
+        );
+
+        $DeleteCommentProgress = $connexion->prepare(" 
+            DELETE FROM comment_progress
+            WHERE comment_progress_id = :comment_id
+        ");
+
+        $DeleteCommentProgress->execute([':comment_id' => $comment_id]);
+        $connexion = null;
         
     }
 
     function commentProgressDelete($comment_id){
-        
+        $db = new Database();
+        $connexion = $db->getConnection();
+
+        $DeleteCommentProgress = $connexion->prepare(" 
+            DELETE FROM comment_progress
+            WHERE comment_progress_id = :comment_id
+        ");
+
+        $DeleteCommentProgress->execute([':comment_id' => $comment_id]);
     }
     
 }

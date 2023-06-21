@@ -118,4 +118,15 @@ switch ($url) {
                 header('Allow: GET');
             }
             break;
+
+    case preg_match('@^/apartment/logistic/get/oneApartment/(\d+)$@', $url, $matches) ? $url : '':
+            $controller = new Apartment();
+            if ($method == 'GET') {
+                $controller->logisticGetOneApartment($matches[1]);
+                $matched = true;
+            } else {
+                header('HTTP/1.1 405 Method Not Allowed');
+                header('Allow: GET');
+            };
+            break;
 }

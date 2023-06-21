@@ -507,5 +507,53 @@ class Apartment {
 
         }
     }
+    function logisticGetOneApartment($apartment_id){
+         $db = new Database();
+
+         $connexion = $db->getconnection();
+
+         $request = $connexion->prepare("
+             SELECT apartment.*,
+             JSON_ARRAYAGG(JSON_OBJECT(
+                'service_id', service.service_id,
+                'service_name', service.service_name
+            )) AS servicesOfApartment,
+             (
+             SELECT JSON_ARRAYAGG(
+                 JSON_OBJECT(
+                     'firstname', user.user_firstname,
+                     'lastname', user.user_lastname,
+                     'id', comment_progress.comment_progress_id,
+                     'comment', comment_progress.comment_progress_comment
+                 )
+             )
+             FROM comment_progress
+             JOIN user 
+             ON comment_progress.comment_progress_user_id = user.user_id
+             WHERE comment_progress.comment_progress_apartment_id = :apartment_id
+             ) AS commentProgress
+             FROM apartment
+             LEFT JOIN apartment_service ON apartment.apartment_id = apartment_service.apartment_service_apartment_id
+             LEFT JOIN service ON apartment_service.apartment_service_service_id = service.service_id
+             WHERE apartment.apartment_id = :apartment_id
+             GROUP BY apartment.apartment_id
+     
+         ");
+         
+         $request->execute([':apartment_id' => $apartment_id]);
+ 
+         $apartmentInfos = $request->fetch(PDO::FETCH_ASSOC);
+ 
+         $connexion= null;
+ 
+ 
+         header("Access-Control-Allow-Origin: http://localhost:3000");
+         header("Access-Control-Allow-Methods: GET, POST");
+         header("Access-Control-Allow-Headers: Content-Type");
+         header("Access-Control-Allow-Credentials: true");
+ 
+         header('Content-Type: application/json; charset=utf-8' );
+         echo json_encode($apartmentInfos);
+    }
 
 }
