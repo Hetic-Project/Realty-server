@@ -160,6 +160,29 @@ CREATE TABLE `user_review` (
   user_review_updated_at timestamp
 );
 
+CREATE TABLE `comment_progress` (
+  comment_progress_id INT PRIMARY KEY AUTO_INCREMENT,
+  comment_progress_user_id INT,
+  comment_progress_apartment_id INT,
+  comment_progress_comment VARCHAR(255),
+  FOREIGN KEY (comment_progress_user_id) REFERENCES user(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (comment_progress_apartment_id) REFERENCES apartment(apartment_id) ON DELETE CASCADE,
+  comment_progress_created_at timestamp DEFAULT CURRENT_TIMESTAMP,
+  comment_progress_updated_at timestamp
+);
+
+CREATE TABLE `notification` (
+  notification_id INT PRIMARY KEY AUTO_INCREMENT,
+  notification_user_logistic_id INT,
+  notification_apartment_id INT,
+  notification_message VARCHAR(255),
+  notification_link VARCHAR(255),
+  FOREIGN KEY (notification_user_id) REFERENCES user(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (notification_apartment_id) REFERENCES apartment(apartment_id) ON DELETE CASCADE,
+  notification_created_at timestamp DEFAULT CURRENT_TIMESTAMP,
+  notification_updated_at timestamp
+);
+
 CREATE TABLE `employee_report` (
   employee_report_id INT PRIMARY KEY AUTO_INCREMENT,
   employee_report_user_id INT,
