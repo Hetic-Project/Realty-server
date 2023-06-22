@@ -51,7 +51,7 @@ class Comment_progress {
         $logistic_id = $idLogisticWant['apartment_employee_logistique_user_id'];
         $apartmentId = $apartment_id;
         $message = 'Un nouveau commentaire est à valider';
-        $link = 'url';
+        $link = 'http://localhost:3000/pages/company/admin/updateapart.php?id=' . $apartmentId;
         $comment_id = $commentProgress_id;
     
         $notification = $connexion->prepare("

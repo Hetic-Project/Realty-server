@@ -329,7 +329,9 @@ class User {
         $_SESSION['statut'] = null;
         session_destroy();
 
-        header('Location: http://localhost:3000');
+        $message = "vous avez bien été déconnecté";
+        header('Location: http://localhost:3000/pages/userspace/login.php?message=' . urlencode($message));
+        exit;
     }
 
     function desactiveAccountForOneUser($user_id) {
