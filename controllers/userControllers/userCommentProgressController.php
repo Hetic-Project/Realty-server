@@ -182,9 +182,24 @@ class Comment_progress {
         $connexion = $db->getConnection();
 
         $sql = $connexion->prepare(" 
-            SELECT *
-            FROM notification
-            WHERE notification_user_logistic_id = :user_id
+        SELECT 
+            notification.notification_created_at,
+            notification.notification_message,
+            notification.notification_link,
+            notification_message.notification_message_created_at,
+            notification_message.notification_message_message,
+            notification_message.notification_message_link
+        FROM notification
+        LEFT JOIN notification_message ON notification.notification_user_logistic_id = notification_message.notification_message_user_logistic_id
+        WHERE notification.notification_user_logistic_id = :user_id
+        AND (
+            notification.notification_created_at IS NOT NULL
+            OR notification.notification_message IS NOT NULL
+            OR notification.notification_link IS NOT NULL
+            OR notification_message.notification_message_created_at IS NOT NULL
+            OR notification_message.notification_message_message IS NOT NULL
+            OR notification_message.notification_message_link IS NOT NULL
+    )
         ");
 
         $sql->execute([':user_id' => $user_id]);

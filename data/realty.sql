@@ -29,7 +29,8 @@ DROP TABLE IF EXISTS
 `apartment_employee`,
 `user_review`,
 `comment_progress`,
-`notification` 
+`notification`,
+`notification_message` 
 CASCADE;
 
 CREATE TABLE `apartment` (
@@ -188,6 +189,20 @@ CREATE TABLE `notification` (
   FOREIGN KEY (notification_comment_id) REFERENCES comment_progress(comment_progress_id) ON DELETE CASCADE,
   notification_created_at timestamp DEFAULT CURRENT_TIMESTAMP,
   notification_updated_at timestamp
+);
+
+CREATE TABLE `notification_message` (
+  notification_message_id INT PRIMARY KEY AUTO_INCREMENT,
+  notification_message_user_logistic_id INT,
+  notification_message_apartment_id INT,
+  notification_message_message VARCHAR(255),
+  notification_message_link VARCHAR(255),
+  notification_message_user_problem_id INT,
+  FOREIGN KEY (notification_message_user_logistic_id) REFERENCES user(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (notification_message_apartment_id) REFERENCES apartment(apartment_id) ON DELETE CASCADE,
+  FOREIGN KEY (notification_message_user_problem_id) REFERENCES user_problem(user_problem_id) ON DELETE CASCADE,
+  notification_message_created_at timestamp DEFAULT CURRENT_TIMESTAMP,
+  notification_message_updated_at timestamp
 );
 
 CREATE TABLE `employee_report` (
