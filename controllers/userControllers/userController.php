@@ -177,11 +177,14 @@ class User {
 
         // 3. je prépare ma requète attention je veut rechercher les users
         $request = $connexion->prepare("
-        SELECT user_firstname, user_lastname, user_id
-        FROM user
-        WHERE users_firstname LIKE :params 
-        OR users_lastname LIKE :params
+            SELECT user_firstname, user_lastname, user_id, user_statut
+            FROM user
+            WHERE user_firstname LIKE :params
+            OR user_lastname LIKE :params
+            OR user_mail LIKE :params
         ");
+
+        $params = "%$params%";
 
         // 4. J'exécute ma requête
         $request->execute([":params" => $params]);
@@ -380,67 +383,29 @@ class User {
 
     }
     
-    function updateStatutForOneUser($user_id, $new_statut) {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('HTTP/1.1 405 Method Not Allowed');
-            echo json_encode(['error' => 'Méthode non autorisée.']);
-            return;
-        }
-    
+    function updateStatutForOneUser() {
+        
         $db = new Database();
         $connexion = $db->getconnection();
     
-        $checkUserQuery = $connexion->prepare("
-            SELECT COUNT(*) as count
-            FROM user
-            WHERE user_id = :user_id
-        ");
-        $checkUserQuery->execute([
-            ":user_id" => $user_id
-        ]);
-        $userExists = $checkUserQuery->fetchColumn();
-    
-        if (!$userExists) {
-            $message = "L'utilisateur spécifié n'existe pas.";
-            $response = [
-                "success" => false,
-                "message" => $message
-            ];
-            header('Content-Type: application/json');
-            echo json_encode($response);
-            return;
-        }
-    
+        $user_id = $_POST['user_id'];
+        $statut = $_POST['statut'];
+
         $request = $connexion->prepare("
             UPDATE user 
-            SET user_statut = :new_statut
+            SET user_statut = :statut
             WHERE user_id = :user_id
         ");
     
         $request->execute([
             ":user_id" => $user_id,
-            ":new_statut" => $new_statut
+            ":statut" => $statut
         ]);
-    
-        $getUserQuery = $connexion->prepare("
-            SELECT *
-            FROM user
-            WHERE user_id = :user_id
-        ");
-        $getUserQuery->execute([
-            ":user_id" => $user_id
-        ]);
-        $userInfos = $getUserQuery->fetch(PDO::FETCH_ASSOC);
     
         $connexion = null;
-    
-        $response = [
-            "success" => true,
-            "message" => "Le statut de l'utilisateur a été mis à jour avec succès.",
-            "user" => $userInfos
-        ];
-        header('Content-Type: application/json');
-        echo json_encode($response);
+        $message = "le statut a bien été mis a jour";
+        header('Location: http://localhost:3000/pages/company/employee/checklist.php?validate=' . urlencode($message));
+        exit;
     }
 
     function deleteAccountForOneUser($user_id) {

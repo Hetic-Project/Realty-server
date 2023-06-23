@@ -57,16 +57,18 @@ switch ($url) {
                 header('Allow: GET');
             };
             break;
-    case preg_match('@^/user/search/([\w-]+)/([\w-]+)$@', $url, $matches) ? $url : '':
-                $controller = new User();
+
+    case preg_match('~^/user/search/([\w.-]+(?:@[\w.-]+)?)$~', $url, $matches) ? $url : '':
+            $param = urldecode($matches[1]);
+            $controller = new User();
             if ($method == 'GET') {
-                    $controller->searchUser($matches[1], $matches[2]);
-                    $matched = true;
+                $controller->searchUser($param);
+                $matched = true;
             } else {
                 header('HTTP/1.1 405 Method Not Allowed');
                 header('Allow: GET');
-            };
-             break;
+            }
+            break;       
 
     case '/user/updateAccount':
             $controller = new User();

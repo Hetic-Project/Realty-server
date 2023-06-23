@@ -61,8 +61,8 @@ CREATE TABLE `user` (
   user_address VARCHAR(255),
   user_zip_code VARCHAR(255),
   user_city VARCHAR(255),
-  user_mail VARCHAR(255),
-  user_statut VARCHAR(255) DEFAULT "client",
+  user_mail VARCHAR(255) UNIQUE,
+  user_statut VARCHAR(255) DEFAULT "Client",
   user_active INT DEFAULT 1,
   user_created_at timestamp DEFAULT CURRENT_TIMESTAMP,
   user_updated_at timestamp
